@@ -1,0 +1,61 @@
+/* CardHeader.css */
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: #009E52; /* Ajustar a cor verde */
+    padding: 10px 20px;
+    height: 60px;
+}
+
+.menu {
+    display: flex;
+    align-items: center;
+}
+
+.menu .p-button {
+    /* background-color: transparent; */
+    border: none;
+    font-size: 3rem;
+    color: white;
+}
+
+
+.menu .p-button:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+}
+
+.titulo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.titulo h1 {
+    font-family: 'Arial', sans-serif;
+    color: white;
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin: 0;
+    text-align: center;
+}
+
+.botoes {
+    display: flex;
+    gap: 10px;
+}
+
+.botoes .p-button {
+    color: white;
+    background-color: transparent;
+    border: none;
+    font-size: 1.5rem;
+}
+
+.botoes .p-button:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+}
+
+
