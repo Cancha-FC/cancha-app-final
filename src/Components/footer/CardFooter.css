@@ -1,0 +1,15 @@
+/* CardFooter.css */
+.footer {
+    background-color: #009E52; /* Cor de fundo */
+    color: white; /* Cor do texto */
+    text-align: center; /* Centralizar o texto */
+    padding: 6px 0; /* Espaçamento interno */
+    position: fixed; /* Fixar o footer no rodapé */
+    bottom: 0;
+    width: 100%;
+    font-size: 12px; /* Tamanho do texto */
+}
+
+.footer p {
+    margin: 0; /* Remove a margem do parágrafo */
+}
