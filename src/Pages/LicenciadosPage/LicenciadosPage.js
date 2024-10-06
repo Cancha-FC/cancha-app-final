@@ -1,59 +1,49 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { PrimeReactProvider } from 'primereact/api';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { InputText } from 'primereact/inputtext';
-import { Button } from 'primereact/button';
-import { ProgressBar } from 'primereact/progressbar';
-import { Calendar } from 'primereact/calendar';
-import { MultiSelect } from 'primereact/multiselect';
-import { Slider } from 'primereact/slider';
 import { Tag } from 'primereact/tag';
+import { Button } from 'primereact/button'; // Importa o botão
 import CardFooter from '../../Components/footer'; // Importa o footer
 import CardHeader from '../../Components/header'; // Importa o header
 import { CustomerService } from '../../service/CustomerService'; // Certifique-se que o caminho está correto
-import './LicenciadosPage.css'
-
+import './LicenciadosPage.css';
 
 const LicenciadosPage = () => {
   const [customers, setCustomers] = useState([]);
-  const [selectedCustomers, setSelectedCustomers] = useState([]);
+  const [globalFilterValue, setGlobalFilterValue] = useState('');
   const [filters, setFilters] = useState({
     global: { value: null, matchMode: 'contains' },
-    name: { operator: 'and', constraints: [{ value: null, matchMode: 'startsWith' }] },
-    'country.name': { operator: 'and', constraints: [{ value: null, matchMode: 'startsWith' }] },
-    representative: { value: null, matchMode: 'in' },
-    date: { operator: 'and', constraints: [{ value: null, matchMode: 'dateIs' }] },
-    balance: { operator: 'and', constraints: [{ value: null, matchMode: 'equals' }] },
-    status: { operator: 'or', constraints: [{ value: null, matchMode: 'equals' }] },
-    activity: { value: null, matchMode: 'between' }
   });
-  
-  
-  const [globalFilterValue, setGlobalFilterValue] = useState('');
-  const [representatives] = useState([
-    { name: 'Amy Elsner', image: 'amyelsner.png' },
-    { name: 'Anna Fali', image: 'annafali.png' },
-    // Adicione os representantes aqui
-  ]);
-  const [statuses] = useState(['unqualified', 'qualified', 'new', 'negotiation', 'renewal']);
 
   useEffect(() => {
-    CustomerService.getCustomersLarge().then((data) => setCustomers(getCustomers(data)));
+    fetchCustomers(); // Chama a função para buscar clientes ao iniciar o componente
   }, []);
 
+  const fetchCustomers = async () => {
+    try {
+      const data = await CustomerService.getCustomersLarge();
+      if (Array.isArray(data)) {
+        setCustomers(getCustomers(data));
+      } else {
+        console.error('Os dados recebidos não estão no formato esperado:', data);
+      }
+    } catch (error) {
+      console.error('Erro ao buscar clientes:', error);
+    }
+  };
+
   const getCustomers = (data) => {
-    return [...(data || [])].map((d) => {
-      d.date = new Date(d.date);
-      return d;
-    });
+    return data.map((d) => ({
+      ...d,
+      date: new Date(d.date),
+    }));
   };
 
   const onGlobalFilterChange = (e) => {
     const value = e.target.value;
-    let _filters = { ...filters };
-    _filters['global'].value = value;
-    setFilters(_filters);
+    setFilters({ global: { value, matchMode: 'contains' } });
     setGlobalFilterValue(value);
   };
 
@@ -65,45 +55,35 @@ const LicenciadosPage = () => {
           <i className="pi pi-search" />
           <InputText value={globalFilterValue} onChange={onGlobalFilterChange} placeholder="Busca" />
         </span>
+        <Button label="Buscar Licenciados" icon="pi pi-refresh" onClick={fetchCustomers} />
       </div>
     );
   };
 
-  const countryBodyTemplate = (rowData) => {
-    return (
-      <div className="flex align-items-center">
-        <span>{rowData.country.name}</span>
-      </div>
-    );
-  };
+  const countryBodyTemplate = (rowData) => (
+    <span>{rowData.country.name}</span>
+  );
 
-  const representativeBodyTemplate = (rowData) => {
-    const representative = rowData.representative;
-    return (
-      <div className="flex align-items-center">
-        <span>{representative.name}</span>
-      </div>
-    );
-  };
+  const representativeBodyTemplate = (rowData) => (
+    <span>{rowData.representative.name}</span>
+  );
 
-  const dateBodyTemplate = (rowData) => {
-    return rowData.date.toLocaleDateString('en-US');
-  };
+  const dateBodyTemplate = (rowData) => (
+    rowData.date.toLocaleDateString('en-US')
+  );
 
-  const balanceBodyTemplate = (rowData) => {
-    return rowData.balance.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
-  };
-
-  const statusBodyTemplate = (rowData) => {
-    return <Tag value={rowData.status} severity={getSeverity(rowData.status)} />;
-  };
+  const statusBodyTemplate = (rowData) => (
+    <Tag value={rowData.status} severity={getSeverity(rowData.status)} />
+  );
 
   const getSeverity = (status) => {
     switch (status) {
       case 1:
-      return 'Ativo';
+        return 'Ativo';
       case 0:
         return 'Inativo';
+      default:
+        return '';
     }
   };
 
@@ -116,13 +96,23 @@ const LicenciadosPage = () => {
       </div>
 
       <div className="TabLicenciados">
-        <DataTable value={customers} paginator header={header} rows={20} rowsPerPageOptions={[20, 50, 100]} filters={filters} filterDisplay="menu" globalFilterFields={['id', 'name', 'country.name', 'representative.name', 'balance', 'status']} emptyMessage="Nenhum cliente encontrado.">
-          <Column field="id" header="id" sortable filter />
+        <DataTable 
+          value={Array.isArray(customers) ? customers : []}
+          paginator 
+          header={header} 
+          rows={20} 
+          rowsPerPageOptions={[20, 50, 100]} 
+          filters={filters} 
+          filterDisplay="menu" 
+          globalFilterFields={['id', 'name', 'country.name', 'representative.name']}
+          emptyMessage="Nenhum cliente encontrado."
+        >
+          <Column field="id" header="ID" sortable filter />
           <Column field="name" header="Nome" sortable filter />
-          <Column field="country.name" header="País" sortable filterField="country.name" body={countryBodyTemplate} filter />
+          <Column field="country.name" header="País" sortable body={countryBodyTemplate} filter />
           <Column field="representative.name" header="Representante" body={representativeBodyTemplate} sortable />
           <Column field="date" header="Data" sortable body={dateBodyTemplate} />
-          <Column field="status" header="Status" sortable body={statusBodyTemplate} />
+          <Column field="status" header="Status" body={statusBodyTemplate} />
         </DataTable>
       </div>
 
