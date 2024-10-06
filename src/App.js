@@ -38,6 +38,7 @@ import HomePage from './Pages/HomePage/HomePage'; // Páginas diferentes
 import RankingPage from './Pages/RankingPage/RankingPage';
 import UsuariosPage from './Pages/UsuarioPages/UsuarioPage';
 import LicenciadosPages from './Pages/LicenciadosPage/LicenciadosPage';
+import LoginPage from './Pages/Login/login.js'
 
 function App() {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
@@ -55,6 +56,7 @@ function App() {
           <Route path="/ranking" element={<RankingPage />} />
           <Route path="/usuarios" element={<UsuariosPage />} />
           <Route path="/licenciados" element={<LicenciadosPages />} />
+          <Route path="/login" element={<LoginPage />} />
         </Routes>
       </div>
     </Router>

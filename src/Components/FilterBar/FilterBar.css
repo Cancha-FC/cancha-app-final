@@ -33,7 +33,7 @@ label {
 .p-button {
     height: 40px;
     border-radius: 30px;
-    background-color: #00a6ff;
+    /* background-color: #00a6ff; */
     border: none;
     flex-shrink: 0; /* Impede o botão de encolher */
 }

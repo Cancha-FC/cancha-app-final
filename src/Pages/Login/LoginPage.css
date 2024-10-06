@@ -1,0 +1,95 @@
+/* Estilo para o container de login, dividindo a tela em dois */
+.login-container {
+    display: flex;
+    height: 100vh; /* A altura deve ser 100% da tela */
+}
+
+.login-left {
+    background-color: #009E52; /* Cor verde */
+    width: 50%; /* Ocupa 50% da largura */
+    display: flex;
+    align-items: center; /* Centraliza verticalmente o conteúdo */
+    justify-content: center; /* Centraliza horizontalmente o conteúdo */
+}
+
+.login-left img {
+    max-width: 80%;
+    height: auto;
+}
+
+.login-right {
+    background-color: #fff; /* Cor branca */
+    width: 50%; /* Ocupa 50% da largura */
+    display: flex;
+    align-items: center; /* Centraliza verticalmente o conteúdo */
+    justify-content: center; /* Centraliza horizontalmente o conteúdo */
+}
+
+.login-form {
+    background-color: #fff;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 2px 4px 6px 4px rgba(0, 0, 0, 0.2);
+    width: 100%;
+    max-width: 350px; /* Tamanho máximo do formulário */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.login-form h2 {
+    color: #009E52;
+    font-size: 3rem;
+    margin-bottom: 0.1rem;
+}
+
+.login-form p {
+    margin-bottom: 2rem;
+    color: #666;
+}
+
+.field {
+    width: 100%;
+    margin-bottom: 1.5rem;
+    
+}
+
+.field-checkbox {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    width: 100%;
+    
+}
+
+
+.field-checkbox label {
+    margin-left: 0.5rem;
+    font-size: 0.9rem;
+    
+}
+
+.p-button-success {
+    width: 100%;
+    background-color: #009E52;
+}
+
+.p-inputtext-lg {
+    width: 100%;
+    padding: 1rem;
+    font-size: 1.1rem;
+    border-radius: 8px;
+    
+}
+
+/* Responsividade para telas menores */
+@media (max-width: 768px) {
+    .login-container {
+        flex-direction: column; /* Coloca os retângulos em cima e embaixo */
+    }
+
+    .login-left, .login-right {
+        width: 100%; /* Cada retângulo ocupa 100% da largura */
+        height: 50vh; /* Cada um ocupa 50% da altura */
+    }
+}
