@@ -12,7 +12,7 @@ import { Tag } from 'primereact/tag';
 import CardFooter from '../../Components/footer'; // Importa o footer
 import CardHeader from '../../Components/header'; // Importa o header
 import { CustomerService } from '../../service/CustomerService'; // Certifique-se que o caminho está correto
-
+import './LicenciadosPage.css'
 
 
 const LicenciadosPage = () => {
@@ -115,7 +115,7 @@ const LicenciadosPage = () => {
         <CardHeader />
       </div>
 
-      <div className="card">
+      <div className="TabLicenciados">
         <DataTable value={customers} paginator header={header} rows={20} rowsPerPageOptions={[20, 50, 100]} filters={filters} filterDisplay="menu" globalFilterFields={['id', 'name', 'country.name', 'representative.name', 'balance', 'status']} emptyMessage="Nenhum cliente encontrado.">
           <Column field="id" header="id" sortable filter />
           <Column field="name" header="Nome" sortable filter />

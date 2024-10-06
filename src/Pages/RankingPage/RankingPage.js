@@ -6,6 +6,7 @@ import FilterBar from '../../Components/FilterBar/FilterBar'; // Componente de f
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { ProductService } from '../../service/ProductService';
+import './RankingPage.css'
 
 const RankingPage = () => {
   const [products, setProducts] = useState([]);
@@ -50,7 +51,7 @@ const RankingPage = () => {
       <FilterBar onFilter={handleFilter} />
 
       {/* Tabela de produtos */}
-      <div className="card">
+      <div className="TabRanking">
         <DataTable value={products} stripedRows tableStyle={{ minWidth: '50rem' }}>
           <Column field="code" header="Code"></Column>
           <Column field="name" header="Name"></Column>
