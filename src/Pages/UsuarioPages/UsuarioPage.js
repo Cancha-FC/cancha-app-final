@@ -115,7 +115,7 @@ const UsuariosPage = () => {
         <CardHeader />
       </div>
 
-      <div className="card">
+      <div className="">
         <DataTable value={customers} paginator header={header} rows={20} rowsPerPageOptions={[20, 50, 100]} filters={filters} filterDisplay="menu" globalFilterFields={['id', 'name', 'country.name', 'representative.name', 'balance', 'status']} emptyMessage="Nenhum cliente encontrado.">
           <Column field="id" header="id" sortable filter />
           <Column field="name" header="Nome" sortable filter />
