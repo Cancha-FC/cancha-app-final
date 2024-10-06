@@ -4,7 +4,7 @@ import { Chart } from 'primereact/chart';
 import CardFooter from '../../Components/footer';
 import CardHeader from '../../Components/header';
 import FilterBar from '../../Components/FilterBar/FilterBar';
-import './HomePage.css'; // Estilos personalizados
+import './HomePage.css'; // Importar o CSS para estilização
 
 const HomePage = () => {
   const [filters, setFilters] = useState({});
@@ -38,7 +38,7 @@ const HomePage = () => {
     ]
   };
 
-  // Opções para customizar o gráfico de barras verticais
+  // Opções para o gráfico de barras verticais
   const chartOptions = {
     responsive: true,
     maintainAspectRatio: false,
@@ -69,7 +69,59 @@ const HomePage = () => {
 
       <h1>Home</h1>
 
+      {/* Adicionando o componente FilterBar */}
       <FilterBar onFilter={handleFilter} />
+
+      {/* Adicionando os Cards */}
+      <div className="card-container">
+        <div className="card">
+          <div className="card-content">
+            <div className="card-icon">
+              <i className="pi pi-shopping-cart"></i>
+            </div>
+            <div className="card-info">
+              <h3>Pedidos</h3>
+              <span>3.941</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="card">
+          <div className="card-content">
+            <div className="card-icon">
+              <i className="pi pi-box"></i>
+            </div>
+            <div className="card-info">
+              <h3>Volume</h3>
+              <span>5.611</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="card">
+          <div className="card-content">
+            <div className="card-icon">
+              <i className="pi pi-dollar"></i>
+            </div>
+            <div className="card-info">
+              <h3>Venda</h3>
+              <span>R$512.611</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="card">
+          <div className="card-content">
+            <div className="card-icon">
+              <i className="pi pi-money-bill"></i>
+            </div>
+            <div className="card-info">
+              <h3>Comissão</h3>
+              <span>R$51.611</span>
+            </div>
+          </div>
+        </div>
+      </div>
 
       {/* Gráfico de Venda x Dia */}
       <div className="chart-container">
