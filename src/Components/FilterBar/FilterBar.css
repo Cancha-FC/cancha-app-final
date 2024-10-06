@@ -1,0 +1,59 @@
+.filter-bar {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem;
+    background-color: #f7f7f7;
+    border-radius: 8px;
+    flex-wrap: nowrap; /* Mantém os elementos em uma única linha */
+}
+
+.calendar-container {
+    display: flex;
+    flex-direction: column;
+    width: 18%; /* Reduzido para 18% para que caiba na linha */
+}
+
+label {
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+    color: #333;
+}
+
+.p-calendar input {
+    border-radius: 30px;
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    text-align: center;
+    width: 100%;
+}
+
+.p-button {
+    height: 40px;
+    border-radius: 30px;
+    background-color: #00a6ff;
+    border: none;
+    flex-shrink: 0; /* Impede o botão de encolher */
+}
+
+.p-dropdown {
+    width: 18%; /* Reduzido para 18% para que caiba na linha */
+}
+
+.p-calendar {
+    width: 100%;
+}
+
+
+@media (max-width: 768px) {
+    .filter-bar {
+        flex-wrap: wrap;
+    }
+
+    .calendar-container, .p-dropdown, .p-button {
+        width: 100%; /* Cada item ocupa 100% da largura em telas menores */
+        margin-bottom: 1rem; /* Espaçamento entre os elementos */
+    }
+}
