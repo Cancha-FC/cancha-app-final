@@ -12,7 +12,7 @@
 .calendar-container {
     display: flex;
     flex-direction: column;
-    width: 18%; /* Reduzido para 18% para que caiba na linha */
+    width: 60%; /* Reduzido para 18% para que caiba na linha */
 }
 
 label {
