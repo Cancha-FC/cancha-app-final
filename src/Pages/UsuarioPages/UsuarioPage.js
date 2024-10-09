@@ -1,136 +1,147 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { PrimeReactProvider } from 'primereact/api';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { InputText } from 'primereact/inputtext';
-import { Button } from 'primereact/button';
-import { ProgressBar } from 'primereact/progressbar';
-import { Calendar } from 'primereact/calendar';
-import { MultiSelect } from 'primereact/multiselect';
-import { Slider } from 'primereact/slider';
 import { Tag } from 'primereact/tag';
-import CardFooter from '../../Components/footer'; // Importa o footer
-import CardHeader from '../../Components/header'; // Importa o header
-import { CustomerService } from '../../service/CustomerService'; // Certifique-se que o caminho está correto
-
-
+import { Button } from 'primereact/button';
+import CardFooter from '../../Components/footer';
+import CardHeader from '../../Components/header';
+import UserEditForm from '../../Components/UserEditForm/UserEditForm';
+import LicenciadoSelectModal from '../../Components/LicenciadoSelectModal/LicenciadoSelectModal'; // Importando o modal
+import { Dialog } from 'primereact/dialog';
 
 const UsuariosPage = () => {
-  const [customers, setCustomers] = useState([]);
-  const [selectedCustomers, setSelectedCustomers] = useState([]);
-  const [filters, setFilters] = useState({
-    global: { value: null, matchMode: 'contains' },
-    name: { operator: 'and', constraints: [{ value: null, matchMode: 'startsWith' }] },
-    'country.name': { operator: 'and', constraints: [{ value: null, matchMode: 'startsWith' }] },
-    representative: { value: null, matchMode: 'in' },
-    date: { operator: 'and', constraints: [{ value: null, matchMode: 'dateIs' }] },
-    balance: { operator: 'and', constraints: [{ value: null, matchMode: 'equals' }] },
-    status: { operator: 'or', constraints: [{ value: null, matchMode: 'equals' }] },
-    activity: { value: null, matchMode: 'between' }
-  });
-  
-  
-  const [globalFilterValue, setGlobalFilterValue] = useState('');
-  const [representatives] = useState([
-    { name: 'Amy Elsner', image: 'amyelsner.png' },
-    { name: 'Anna Fali', image: 'annafali.png' },
-    // Adicione os representantes aqui
-  ]);
-  const [statuses] = useState(['unqualified', 'qualified', 'new', 'negotiation', 'renewal']);
-
-  useEffect(() => {
-    CustomerService.getCustomersLarge().then((data) => setCustomers(getCustomers(data)));
-  }, []);
-
-  const getCustomers = (data) => {
-    return [...(data || [])].map((d) => {
-      d.date = new Date(d.date);
-      return d;
+    const [users, setUsers] = useState([]);
+    const [globalFilterValue, setGlobalFilterValue] = useState('');
+    const [filters, setFilters] = useState({
+        global: { value: null, matchMode: 'contains' },
     });
-  };
+    const [selectedUser, setSelectedUser] = useState(null);
+    const [visible, setVisible] = useState(false);
+    const [modalVisible, setModalVisible] = useState(false); // Controla a visibilidade do modal de licenciados
 
-  const onGlobalFilterChange = (e) => {
-    const value = e.target.value;
-    let _filters = { ...filters };
-    _filters['global'].value = value;
-    setFilters(_filters);
-    setGlobalFilterValue(value);
-  };
+    useEffect(() => {
+        fetchUsers();
+    }, []);
 
-  const renderHeader = () => {
+    const fetchUsers = async () => {
+        try {
+            const response = await fetch('http://127.0.0.1:8000/api/auth/users/', {
+                headers: {
+                    'Authorization': `Token ${localStorage.getItem('token')}`,
+                },
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const data = await response.json();
+            setUsers(data.results || data); // Ajuste aqui baseado na estrutura da resposta
+        } catch (error) {
+            console.error('Erro ao buscar usuários:', error);
+        }
+    };
+
+    const openEditModal = (user) => {
+        setSelectedUser(user);
+        setVisible(true);
+    };
+
+    const openLicenciadoModal = (user) => {
+        setSelectedUser(user);
+        setModalVisible(true);
+    };
+
+    const closeLicenciadoModal = () => {
+        setModalVisible(false);
+    };
+
+    const handleLicenciadoConfirm = (selectedLicenciados) => {
+        console.log('Licenciados selecionados para o usuário:', selectedUser.username, selectedLicenciados);
+        // Aqui você pode fazer a chamada para vincular os licenciados ao usuário
+        // Exemplo: Enviar uma requisição POST para a API com os dados do vínculo
+    };
+
+    const onGlobalFilterChange = (e) => {
+        const value = e.target.value;
+        let _filters = { ...filters };
+        _filters['global'].value = value;
+        setFilters(_filters);
+        setGlobalFilterValue(value);
+    };
+
+    const renderHeader = () => {
+        return (
+            <div className="flex justify-content-between align-items-center">
+                <h4 className="m-0">Usuários</h4>
+                <span className="p-input-icon-right">
+                    <i className="pi pi-search" />
+                    <InputText value={globalFilterValue} onChange={onGlobalFilterChange} placeholder="Busca" />
+                </span>
+            </div>
+        );
+    };
+
+    const statusBodyTemplate = (rowData) => {
+        return <Tag value={rowData.is_active ? 'Ativo' : 'Inativo'} severity={rowData.is_active ? 'success' : 'danger'} />;
+    };
+
+    const header = renderHeader();
+
     return (
-      <div className="flex justify-content-between align-items-center">
-        <h4 className="m-0">Usuarios</h4>
-        <span className="p-input-icon-right">
-          <i className="pi pi-search" />
-          <InputText value={globalFilterValue} onChange={onGlobalFilterChange} placeholder="Busca" />
-        </span>
-      </div>
+        <PrimeReactProvider>
+            <div>
+                <CardHeader />
+            </div>
+
+            <div className="">
+                <DataTable 
+                    value={users} 
+                    paginator 
+                    header={header} 
+                    rows={20} 
+                    rowsPerPageOptions={[20, 50, 100]} 
+                    filters={filters} 
+                    filterDisplay="menu" 
+                    globalFilterFields={['id', 'username', 'email', 'first_name', 'last_name']} 
+                    emptyMessage="Nenhum usuário encontrado."
+                >
+                    <Column field="id" header="ID" sortable filter />
+                    <Column field="username" header="Usuário" sortable filter />
+                    <Column field="email" header="Email" sortable filter />
+                    <Column field="first_name" header="Nome" sortable filter />
+                    <Column field="last_name" header="Sobrenome" sortable filter />
+                    <Column field="is_active" header="Status" body={statusBodyTemplate} />
+                    <Column 
+                        body={(rowData) => (
+                            <Button 
+                                label="Vincular Licenciado" 
+                                icon="pi pi-briefcase" 
+                                onClick={() => openLicenciadoModal(rowData)} 
+                            />
+                        )} 
+                    />
+                    <Column body={(rowData) => <Button label="Editar" onClick={() => openEditModal(rowData)} />} />
+                </DataTable>
+            </div>
+
+            <div>
+                <CardFooter />
+            </div>
+
+            <Dialog header="Editar Usuário" visible={visible} onHide={() => setVisible(false)}>
+                <UserEditForm user={selectedUser} onClose={() => setVisible(false)} />
+            </Dialog>
+
+            <LicenciadoSelectModal 
+                visible={modalVisible} 
+                onHide={closeLicenciadoModal} 
+                onConfirm={handleLicenciadoConfirm} 
+            />
+        </PrimeReactProvider>
     );
-  };
-
-  const countryBodyTemplate = (rowData) => {
-    return (
-      <div className="flex align-items-center">
-        <span>{rowData.country.name}</span>
-      </div>
-    );
-  };
-
-  const representativeBodyTemplate = (rowData) => {
-    const representative = rowData.representative;
-    return (
-      <div className="flex align-items-center">
-        <span>{representative.name}</span>
-      </div>
-    );
-  };
-
-  const dateBodyTemplate = (rowData) => {
-    return rowData.date.toLocaleDateString('en-US');
-  };
-
-  const balanceBodyTemplate = (rowData) => {
-    return rowData.balance.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
-  };
-
-  const statusBodyTemplate = (rowData) => {
-    return <Tag value={rowData.status} severity={getSeverity(rowData.status)} />;
-  };
-
-  const getSeverity = (status) => {
-    switch (status) {
-      case 1:
-      return 'Ativo';
-      case 0:
-        return 'Inativo';
-    }
-  };
-
-  const header = renderHeader();
-
-  return (
-    <PrimeReactProvider>
-      <div>
-        <CardHeader />
-      </div>
-
-      <div className="">
-        <DataTable value={customers} paginator header={header} rows={20} rowsPerPageOptions={[20, 50, 100]} filters={filters} filterDisplay="menu" globalFilterFields={['id', 'name', 'country.name', 'representative.name', 'balance', 'status']} emptyMessage="Nenhum cliente encontrado.">
-          <Column field="id" header="id" sortable filter />
-          <Column field="name" header="Nome" sortable filter />
-          <Column field="country.name" header="País" sortable filterField="country.name" body={countryBodyTemplate} filter />
-          <Column field="representative.name" header="Representante" body={representativeBodyTemplate} sortable />
-          <Column field="date" header="Data" sortable body={dateBodyTemplate} />
-          <Column field="status" header="Status" sortable body={statusBodyTemplate} />
-        </DataTable>
-      </div>
-
-      <div>
-        <CardFooter />
-      </div>
-    </PrimeReactProvider>
-  );
 };
 
 export default UsuariosPage;

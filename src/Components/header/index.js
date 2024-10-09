@@ -1,10 +1,8 @@
-// index.js
 import React, { useState } from 'react';
 import './CardHeader.css';
 import 'primeicons/primeicons.css';
 import { Button } from 'primereact/button';
 import SidebarMenu from '../SidebarMenu/SidebarMenu';
-import LoginPage from '../../Pages/Login/login';
 import { useNavigate } from 'react-router-dom';
 
 const CardHeader = () => {
@@ -14,6 +12,13 @@ const CardHeader = () => {
   const handleNavigation = (path) => {
     navigate(path);
   };
+
+  const handleLogout = () => {
+    console.log("Logout clicado"); // Verifique se esta mensagem aparece
+    localStorage.removeItem('token'); // Remove o token
+    navigate('/login'); // Redireciona para o login
+  };
+
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
   };
@@ -31,9 +36,15 @@ const CardHeader = () => {
         </div>
 
         <div className="botoes">
-          {/* <Button icon="pi pi-moon" rounded text aria-label="Filter" /> */}
           <Button icon="pi pi-user" rounded text severity="secondary" aria-label="Bookmark" />
-          <Button icon="pi pi-sign-out" rounded text severity="secondary" aria-label="Bookmark" onClick={() => handleNavigation('/login') }/>
+          <Button 
+            icon="pi pi-sign-out" 
+            rounded 
+            text 
+            severity="secondary" 
+            aria-label="Logout" 
+            onClick={handleLogout} // Chama a função de logout
+          />
         </div>
       </div>
 
