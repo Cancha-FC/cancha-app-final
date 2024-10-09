@@ -1,14 +1,17 @@
-import React, { useState, useEffect } from 'react';
+// UsuariosPage.js
+import React, { useState, useEffect, useRef } from 'react';
 import { PrimeReactProvider } from 'primereact/api';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { InputText } from 'primereact/inputtext';
 import { Tag } from 'primereact/tag';
 import { Button } from 'primereact/button';
+import { Toast } from 'primereact/toast';
 import CardFooter from '../../Components/footer';
 import CardHeader from '../../Components/header';
 import UserEditForm from '../../Components/UserEditForm/UserEditForm';
-import LicenciadoSelectModal from '../../Components/LicenciadoSelectModal/LicenciadoSelectModal'; // Importando o modal
+import UserCreateForm from '../../Components/UserCreateForm/UserCreateForm';
+import LicenciadoSelectModal from '../../Components/LicenciadoSelectModal/LicenciadoSelectModal';
 import { Dialog } from 'primereact/dialog';
 
 const UsuariosPage = () => {
@@ -19,30 +22,42 @@ const UsuariosPage = () => {
     });
     const [selectedUser, setSelectedUser] = useState(null);
     const [visible, setVisible] = useState(false);
-    const [modalVisible, setModalVisible] = useState(false); // Controla a visibilidade do modal de licenciados
+    const [modalVisible, setModalVisible] = useState(false);
+    const [createUserVisible, setCreateUserVisible] = useState(false);
+    const toast = useRef(null);
 
     useEffect(() => {
         fetchUsers();
     }, []);
 
-    const fetchUsers = async () => {
-        try {
-            const response = await fetch('http://127.0.0.1:8000/api/auth/users/', {
-                headers: {
-                    'Authorization': `Token ${localStorage.getItem('token')}`,
-                },
-            });
-
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-
-            const data = await response.json();
-            setUsers(data.results || data); // Ajuste aqui baseado na estrutura da resposta
-        } catch (error) {
-            console.error('Erro ao buscar usuários:', error);
+    const isStaff = () => {
+        const userData = localStorage.getItem('userData');
+        if (userData) {
+            const user = JSON.parse(userData);
+            return user.is_staff;
         }
+        return false;
     };
+
+    const fetchUsers = async () => {
+      try {
+          const response = await fetch('http://127.0.0.1:8000/api/users/', {
+              headers: {
+                  'Authorization': `Token ${localStorage.getItem('token')}`,
+              },
+          });
+  
+          if (!response.ok) {
+              throw new Error(`HTTP error! status: ${response.status}`);
+          }
+  
+          const data = await response.json();
+          setUsers(data.results || data); // Ajuste conforme a estrutura da resposta
+      } catch (error) {
+          console.error('Erro ao buscar usuários:', error);
+          toast.current.show({ severity: 'error', summary: 'Erro', detail: 'Não foi possível carregar os usuários.' });
+      }
+  };
 
     const openEditModal = (user) => {
         setSelectedUser(user);
@@ -50,19 +65,43 @@ const UsuariosPage = () => {
     };
 
     const openLicenciadoModal = (user) => {
-        setSelectedUser(user);
-        setModalVisible(true);
-    };
+      setSelectedUser(user);
+      setModalVisible(true);
+  };
 
     const closeLicenciadoModal = () => {
         setModalVisible(false);
     };
 
-    const handleLicenciadoConfirm = (selectedLicenciados) => {
-        console.log('Licenciados selecionados para o usuário:', selectedUser.username, selectedLicenciados);
-        // Aqui você pode fazer a chamada para vincular os licenciados ao usuário
-        // Exemplo: Enviar uma requisição POST para a API com os dados do vínculo
-    };
+
+    const handleLicenciadoConfirm = async (selectedLicenciados) => {
+      const licenciadosIds = selectedLicenciados.map(licenciado => licenciado.id);
+  
+      try {
+          const response = await fetch(`http://127.0.0.1:8000/api/auth/users/${selectedUser.id}/link-licenciados/`, {
+              method: 'POST',
+              headers: {
+                  'Content-Type': 'application/json',
+                  'Authorization': `Token ${localStorage.getItem('token')}`,
+              },
+              body: JSON.stringify({ licenciados_ids: licenciadosIds }),
+          });
+  
+          if (response.ok) {
+              // Sucesso
+              toast.current.show({ severity: 'success', summary: 'Sucesso', detail: 'Licenciados atualizados com sucesso' });
+              fetchUsers(); // Atualiza a lista de usuários
+          } else {
+              // Tratar o erro
+              const errorData = await response.json();
+              console.error('Erro ao atualizar licenciados:', errorData);
+              toast.current.show({ severity: 'error', summary: 'Erro', detail: 'Falha ao atualizar licenciados.' });
+          }
+      } catch (error) {
+          console.error('Erro ao atualizar licenciados:', error);
+          toast.current.show({ severity: 'error', summary: 'Erro', detail: 'Falha ao atualizar licenciados.' });
+      }
+  };
 
     const onGlobalFilterChange = (e) => {
         const value = e.target.value;
@@ -76,16 +115,36 @@ const UsuariosPage = () => {
         return (
             <div className="flex justify-content-between align-items-center">
                 <h4 className="m-0">Usuários</h4>
-                <span className="p-input-icon-right">
-                    <i className="pi pi-search" />
-                    <InputText value={globalFilterValue} onChange={onGlobalFilterChange} placeholder="Busca" />
-                </span>
+                <div>
+                    <span className="p-input-icon-right">
+                        <i className="pi pi-search" />
+                        <InputText value={globalFilterValue} onChange={onGlobalFilterChange} placeholder="Busca" />
+                    </span>
+                    {isStaff() && (
+                        <Button
+                            label="Criar Usuário"
+                            icon="pi pi-plus"
+                            className="ml-2"
+                            onClick={() => setCreateUserVisible(true)}
+                        />
+                    )}
+                </div>
             </div>
         );
     };
 
     const statusBodyTemplate = (rowData) => {
         return <Tag value={rowData.is_active ? 'Ativo' : 'Inativo'} severity={rowData.is_active ? 'success' : 'danger'} />;
+    };
+
+    const licenciadosBodyTemplate = (rowData) => {
+        return (
+            <ul>
+                {rowData.licenciados && rowData.licenciados.map((licenciado) => (
+                    <li key={licenciado.id}>{licenciado.nome}</li>
+                ))}
+            </ul>
+        );
     };
 
     const header = renderHeader();
@@ -97,15 +156,15 @@ const UsuariosPage = () => {
             </div>
 
             <div className="">
-                <DataTable 
-                    value={users} 
-                    paginator 
-                    header={header} 
-                    rows={20} 
-                    rowsPerPageOptions={[20, 50, 100]} 
-                    filters={filters} 
-                    filterDisplay="menu" 
-                    globalFilterFields={['id', 'username', 'email', 'first_name', 'last_name']} 
+                <DataTable
+                    value={users}
+                    paginator
+                    header={header}
+                    rows={20}
+                    rowsPerPageOptions={[20, 50, 100]}
+                    filters={filters}
+                    filterDisplay="menu"
+                    globalFilterFields={['id', 'username', 'email', 'first_name', 'last_name']}
                     emptyMessage="Nenhum usuário encontrado."
                 >
                     <Column field="id" header="ID" sortable filter />
@@ -113,15 +172,16 @@ const UsuariosPage = () => {
                     <Column field="email" header="Email" sortable filter />
                     <Column field="first_name" header="Nome" sortable filter />
                     <Column field="last_name" header="Sobrenome" sortable filter />
+                    <Column field="licenciados" header="Licenciados" body={licenciadosBodyTemplate} />
                     <Column field="is_active" header="Status" body={statusBodyTemplate} />
-                    <Column 
+                    <Column
                         body={(rowData) => (
-                            <Button 
-                                label="Vincular Licenciado" 
-                                icon="pi pi-briefcase" 
-                                onClick={() => openLicenciadoModal(rowData)} 
+                            <Button
+                                label="Vincular Licenciado"
+                                icon="pi pi-briefcase"
+                                onClick={() => openLicenciadoModal(rowData)}
                             />
-                        )} 
+                        )}
                     />
                     <Column body={(rowData) => <Button label="Editar" onClick={() => openEditModal(rowData)} />} />
                 </DataTable>
@@ -135,11 +195,18 @@ const UsuariosPage = () => {
                 <UserEditForm user={selectedUser} onClose={() => setVisible(false)} />
             </Dialog>
 
-            <LicenciadoSelectModal 
-                visible={modalVisible} 
-                onHide={closeLicenciadoModal} 
-                onConfirm={handleLicenciadoConfirm} 
-            />
+            <Dialog header="Criar Usuário" visible={createUserVisible} onHide={() => setCreateUserVisible(false)}>
+                <UserCreateForm onClose={() => setCreateUserVisible(false)} onUserCreated={fetchUsers} />
+            </Dialog>
+
+            <LicenciadoSelectModal
+    visible={modalVisible}
+    onHide={closeLicenciadoModal}
+    onConfirm={handleLicenciadoConfirm}
+    selectedUser={selectedUser}
+/>
+
+            <Toast ref={toast} />
         </PrimeReactProvider>
     );
 };

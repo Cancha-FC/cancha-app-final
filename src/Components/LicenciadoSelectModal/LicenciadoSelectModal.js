@@ -1,54 +1,67 @@
-// LicenciadoSelectModal.js
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Dialog } from 'primereact/dialog';
-import { Checkbox } from 'primereact/checkbox';
+import { DataTable } from 'primereact/datatable';
+import { Column } from 'primereact/column';
 import { Button } from 'primereact/button';
 
-const LicenciadoSelectModal = ({ visible, onHide, onConfirm, user }) => {
+
+
+// LicenciadoSelectModal.js
+
+const LicenciadoSelectModal = ({ visible, onHide, onConfirm, selectedUser }) => {
     const [licenciados, setLicenciados] = useState([]);
     const [selectedLicenciados, setSelectedLicenciados] = useState([]);
 
     useEffect(() => {
-        // Fetch licenciados data
-        const fetchLicenciados = async () => {
-            const response = await fetch('http://127.0.0.1:8000/api/licenciados/');
+        if (visible) {
+            fetchLicenciados();
+        }
+    }, [visible]);
+
+    const fetchLicenciados = async () => {
+        try {
+            const response = await fetch('http://127.0.0.1:8000/api/licenciados/', {
+                headers: {
+                    'Authorization': `Token ${localStorage.getItem('token')}`,
+                },
+            });
             const data = await response.json();
             setLicenciados(data);
-        };
 
-        fetchLicenciados();
-    }, []);
-
-    const handleSelect = (licenciadoId) => {
-        if (selectedLicenciados.includes(licenciadoId)) {
-            setSelectedLicenciados(selectedLicenciados.filter(id => id !== licenciadoId));
-        } else {
-            setSelectedLicenciados([...selectedLicenciados, licenciadoId]);
+            // Pré-selecionar licenciados vinculados
+            if (selectedUser && selectedUser.licenciados) {
+                const licenciadosVinculados = data.filter(licenciado =>
+                    selectedUser.licenciados.some(l => l.id === licenciado.id)
+                );
+                setSelectedLicenciados(licenciadosVinculados);
+            } else {
+                setSelectedLicenciados([]);
+            }
+        } catch (error) {
+            console.error('Erro ao buscar licenciados:', error);
         }
     };
 
     const handleConfirm = () => {
-        onConfirm(selectedLicenciados); // Chama a função onConfirm com os licenciados selecionados
-        onHide(); // Fecha o modal
+        onConfirm(selectedLicenciados);
+        onHide();
     };
 
     return (
-        <Dialog header="Selecionar Licenciados" visible={visible} onHide={onHide}>
-            <div>
-                {licenciados.map(licenciado => (
-                    <div key={licenciado.id} className="flex align-items-center">
-                        <Checkbox 
-                            inputId={`licenciado-${licenciado.id}`} 
-                            checked={selectedLicenciados.includes(licenciado.id)} 
-                            onChange={() => handleSelect(licenciado.id)} 
-                        />
-                        <label htmlFor={`licenciado-${licenciado.id}`}>{licenciado.nome}</label>
-                    </div>
-                ))}
-            </div>
-            <div className="flex justify-content-end mt-2">
-                <Button label="Cancelar" onClick={onHide} className="p-button-text" />
-                <Button label="Confirmar" onClick={handleConfirm} className="p-button-success" />
+        <Dialog header="Selecionar Licenciados" visible={visible} onHide={onHide} style={{ width: '50vw' }}>
+            <DataTable
+                value={licenciados}
+                selection={selectedLicenciados}
+                onSelectionChange={e => setSelectedLicenciados(e.value)}
+                selectionMode="multiple"
+            >
+                <Column selectionMode="multiple" headerStyle={{ width: '3em' }}></Column>
+                <Column field="id" header="ID"></Column>
+                <Column field="nome" header="Nome"></Column>
+            </DataTable>
+            <div className="p-dialog-footer">
+                <Button label="Cancelar" icon="pi pi-times" onClick={onHide} className="p-button-text" />
+                <Button label="Confirmar" icon="pi pi-check" onClick={handleConfirm} autoFocus />
             </div>
         </Dialog>
     );
