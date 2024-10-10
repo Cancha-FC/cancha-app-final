@@ -1,0 +1,58 @@
+.header-usuario {
+    color: black;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-direction: row;
+    font-family: Arial, Helvetica, sans-serif;
+
+
+}
+
+
+.header-usuario .header-usuario-titulo {
+    display: flex;
+    text-align: left;
+}
+
+.header-usuario-buscador {
+    display: flex;
+    justify-content: end;
+    gap: 3px;
+}
+
+
+.input-icon-container {
+    position: relative;
+    display: inline-block;
+}
+
+.input-icon {
+    position: absolute;
+    left: 10px; /* Ajuste conforme necessário */
+    top: 50%;
+    transform: translateY(-50%);
+    color: #999; /* Cor da lupa */
+}
+
+input {
+    padding-left: 30px; /* Espaço para o ícone dentro do campo */
+    width: 100%; /* Para ajustar ao container */
+}
+
+
+.botao-inserir, .botao-excel {
+    width: 40px;  /* Largura e altura iguais para garantir o formato redondo */
+    height: 40px;
+    max-width: 40px; /* Garante que a largura não ultrapasse o valor definido */
+    max-height: 40px; /* Garante que a altura também seja limitada */
+    border-radius: 50%; /* Mantém o botão redondo */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0;
+    overflow: hidden; /* Garante que nada estoure o conteúdo */
+    text-align: center;
+}
+
+

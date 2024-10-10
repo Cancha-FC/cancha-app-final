@@ -13,6 +13,7 @@ import UserEditForm from '../../Components/UserEditForm/UserEditForm';
 import UserCreateForm from '../../Components/UserCreateForm/UserCreateForm';
 import LicenciadoSelectModal from '../../Components/LicenciadoSelectModal/LicenciadoSelectModal';
 import { Dialog } from 'primereact/dialog';
+import './UsuarioPage.css';
 
 const UsuariosPage = () => {
     const [users, setUsers] = useState([]);
@@ -113,20 +114,22 @@ const UsuariosPage = () => {
 
     const renderHeader = () => {
         return (
-            <div className="flex justify-content-between align-items-center">
-                <h4 className="m-0">Usuários</h4>
-                <div>
-                    <span className="p-input-icon-right">
-                        <i className="pi pi-search" />
-                        <InputText value={globalFilterValue} onChange={onGlobalFilterChange} placeholder="Busca" />
+            <div className="header-usuario">
+                <div className="header-usuario-titulo">
+                <h3>Cadastro de Usuários</h3>
+                </div>
+                
+                <div className="header-usuario-buscador">
+                    <span className="input-icon-container">
+                        <i className="pi pi-search input-icon" />
+                        <InputText value={globalFilterValue} onChange={onGlobalFilterChange} placeholder="Buscar" />
                     </span>
                     {isStaff() && (
-                        <Button
-                            label="Criar Usuário"
-                            icon="pi pi-plus"
-                            className="ml-2"
-                            onClick={() => setCreateUserVisible(true)}
-                        />
+                        <Button className="botao-inserir" icon="pi pi-plus" rounded severity="info" aria-label="User" onClick={() => setCreateUserVisible(true)} />
+
+                    )}
+                    {isStaff() && (
+                        <Button className="botao-excel" icon="pi pi-file-excel"  rounded severity="success" aria-label="Search" />
                     )}
                 </div>
             </div>
@@ -137,15 +140,15 @@ const UsuariosPage = () => {
         return <Tag value={rowData.is_active ? 'Ativo' : 'Inativo'} severity={rowData.is_active ? 'success' : 'danger'} />;
     };
 
-    const licenciadosBodyTemplate = (rowData) => {
-        return (
-            <ul>
-                {rowData.licenciados && rowData.licenciados.map((licenciado) => (
-                    <li key={licenciado.id}>{licenciado.nome}</li>
-                ))}
-            </ul>
-        );
-    };
+    // const licenciadosBodyTemplate = (rowData) => {
+    //     return (
+    //         <ul>
+    //             {rowData.licenciados && rowData.licenciados.map((licenciado) => (
+    //                 <li key={licenciado.id}>{licenciado.nome}</li>
+    //             ))}
+    //         </ul>
+    //     );
+    // };
 
     const header = renderHeader();
 
@@ -160,8 +163,8 @@ const UsuariosPage = () => {
                     value={users}
                     paginator
                     header={header}
-                    rows={20}
-                    rowsPerPageOptions={[20, 50, 100]}
+                    rows={25}
+                    rowsPerPageOptions={[25, 50, 100]}
                     filters={filters}
                     filterDisplay="menu"
                     globalFilterFields={['id', 'username', 'email', 'first_name', 'last_name']}
@@ -172,18 +175,17 @@ const UsuariosPage = () => {
                     <Column field="email" header="Email" sortable filter />
                     <Column field="first_name" header="Nome" sortable filter />
                     <Column field="last_name" header="Sobrenome" sortable filter />
-                    <Column field="licenciados" header="Licenciados" body={licenciadosBodyTemplate} />
+                    {/* <Column field="licenciados" header="Licenciados" body={licenciadosBodyTemplate} /> */}
                     <Column field="is_active" header="Status" body={statusBodyTemplate} />
-                    <Column
+                    <Column header="Licenciados"
                         body={(rowData) => (
-                            <Button
-                                label="Vincular Licenciado"
+                            <Button 
                                 icon="pi pi-briefcase"
                                 onClick={() => openLicenciadoModal(rowData)}
                             />
                         )}
                     />
-                    <Column body={(rowData) => <Button label="Editar" onClick={() => openEditModal(rowData)} />} />
+                    <Column header="Editar" body={(rowData) => <Button  icon="pi pi-pen-to-square" onClick={() => openEditModal(rowData)} />} />
                 </DataTable>
             </div>
 
