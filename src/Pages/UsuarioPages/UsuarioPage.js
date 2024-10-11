@@ -179,11 +179,14 @@ const UsuariosPage = () => {
                     <Column field="is_active" header="Status" body={statusBodyTemplate} />
                     <Column header="Licenciados"
                         body={(rowData) => (
-                            <Button 
-                                icon="pi pi-briefcase"
-                                style={{ width: '40px', height: '40px' }}
-                                onClick={() => openLicenciadoModal(rowData)}
-                            />
+                            <div style={{ display: 'flex', justifyContent: 'center' }}>
+                                <Button 
+                                    icon="pi pi-briefcase"
+                                    style={{ width: '40px', height: '40px' }}
+                                    bodyStyle={{ textAlign: 'center' }}
+                                    onClick={() => openLicenciadoModal(rowData)}
+                                />
+                            </div>
                         )}
                     />
                     <Column header="Editar" body={(rowData) => 
@@ -197,6 +200,8 @@ const UsuariosPage = () => {
             </div>
 
             <div>
+                <br></br>
+                <br></br>
                 <CardFooter />
             </div>
 

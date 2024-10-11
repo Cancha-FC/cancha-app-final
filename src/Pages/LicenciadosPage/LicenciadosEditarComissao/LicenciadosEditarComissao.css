@@ -1,0 +1,41 @@
+.licenciados-form {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    margin-bottom: 3px;
+    max-width: 400px;
+    margin: auto;
+}
+
+.licenciados-form-editar {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.licenciados-form-editar div {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+.licenciados-form-editar label {
+    margin-bottom: 5px;
+}
+
+.licenciados-button-container {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+    gap: 10px; /* Espaço entre os botões */
+    width: 100%; /* Garante que a largura seja ocupada completamente */
+}
+
+.licenciados-button-container .p-button {
+    flex: 1; /* Garante que ambos os botões tenham o mesmo tamanho */
+    margin: 0; /* Remove margens para garantir alinhamento */
+    height: 45px; /* Ajusta a altura dos botões para ficarem iguais */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}

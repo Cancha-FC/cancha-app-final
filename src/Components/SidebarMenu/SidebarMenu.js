@@ -27,6 +27,11 @@ const SidebarMenu = ({ isOpen, toggleMenu }) => {
           icon: 'pi pi-home',
           command: () => navigate('/home') // Navega para a página Home
         },
+        {
+          label: 'Ranking',
+          icon: 'pi pi-chart-line',
+          command: () => navigate('/ranking') // Navega para a página Ranking
+        },
       
       ]
     },
@@ -38,11 +43,7 @@ const SidebarMenu = ({ isOpen, toggleMenu }) => {
             label: 'Cancha Administrativo',
             items: [
 
-            {
-              label: 'Ranking',
-              icon: 'pi pi-chart-line',
-              command: () => navigate('/ranking') // Navega para a página Ranking
-            },
+
 
 
           

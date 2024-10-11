@@ -8,10 +8,11 @@ import { Button } from 'primereact/button';
 import { Toast } from 'primereact/toast';
 import CardFooter from '../../Components/footer';
 import CardHeader from '../../Components/header';
-import LicenciadoEditForm from '../../Components/LicenciadoEditForm/LicenciadoEditForm';
+import LicenciadoEditForm from './LicenciadosEditarComissao/LicenciadosEditarComissao';
 import { InputText } from 'primereact/inputtext';
 import { Tag } from 'primereact/tag';
 import { Dialog } from 'primereact/dialog';
+import './LicenciadosPage.css'
 
 const LicenciadosPage = () => {
   const [licenciados, setLicenciados] = useState([]);
@@ -50,12 +51,23 @@ const LicenciadosPage = () => {
 
   const renderHeader = () => {
     return (
-      <div className="flex justify-content-between align-items-center">
-        <h4 className="m-0">Licenciados</h4>
-        <span className="p-input-icon-right">
-          <i className="pi pi-search" />
-          <InputText value={globalFilterValue} onChange={onGlobalFilterChange} placeholder="Busca" />
-        </span>
+      <div className="header-licenciados">
+        <div className="header-licenciados-titulo">
+          <h3>Licenciados</h3>
+        </div>
+        <div className="header-licenciados-buscador">
+          <span className="icon-licenciados">
+            <i className="pi pi-search" />
+            <InputText value={globalFilterValue} onChange={onGlobalFilterChange} placeholder="Busca" />
+          </span>
+          
+          <Button className="botao-inserir"  icon="pi pi-plus" rounded severity="info" aria-label="User" tooltip="Importar Novos Licenciados" />
+          
+          <Button className="botao-excel" icon="pi pi-file-excel"  rounded severity="success" aria-label="Search" tooltip="Exportar p/ Excel" />
+          
+          
+
+        </div>
       </div>
     );
   };
@@ -99,7 +111,7 @@ const LicenciadosPage = () => {
     }
   };
 
-  const actionBodyTemplate = (rowData) => {
+  const actionBodyTemplateEditar = (rowData) => {
     return (
       <div>
         <Button
@@ -109,6 +121,15 @@ const LicenciadosPage = () => {
           tooltip="Editar"
           tooltipOptions={{ position: 'top' }}
         />
+      </div>
+    );
+  };
+
+
+
+  const actionBodyTemplateInativar = (rowData) => {
+    return (
+      <div>
         <Button
           icon={rowData.ativo ? 'pi pi-eye-slash' : 'pi pi-eye'}
           className="p-button-rounded p-button-text"
@@ -119,6 +140,8 @@ const LicenciadosPage = () => {
       </div>
     );
   };
+
+
 
   const openEditModal = (licenciado) => {
     setSelectedLicenciado(licenciado);
@@ -145,22 +168,25 @@ const LicenciadosPage = () => {
           value={licenciados}
           paginator
           header={header}
-          rows={20}
-          rowsPerPageOptions={[20, 50, 100]}
+          rows={25}
+          rowsPerPageOptions={[25, 50, 100]}
           filters={filters}
           filterDisplay="menu"
           globalFilterFields={['id', 'nome']}
           emptyMessage="Nenhum licenciado encontrado."
         >
           <Column field="id" header="ID" sortable filter />
-          <Column field="nome" header="Nome" sortable filter />
-          <Column field="comissao" header="Comissão" body={comissaoBodyTemplate} sortable filter />
+          <Column field="nome" header="Licenciado" sortable filter />
+          <Column field="comissao" header="Comissão (%)" body={comissaoBodyTemplate} sortable filter />
           <Column field="ativo" header="Status" body={statusBodyTemplate} />
-          <Column body={actionBodyTemplate} header="Ações" />
+          <Column body={actionBodyTemplateEditar} header="Editar" />
+          <Column body={actionBodyTemplateInativar} header="Ativar/Inativar"  />
         </DataTable>
       </div>
 
       <div>
+        <br></br>
+        <br></br>
         <CardFooter />
       </div>
 

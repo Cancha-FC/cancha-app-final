@@ -1,0 +1,46 @@
+
+
+
+.header-licenciados {
+    color: black;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-direction: row;
+    font-family: Arial, Helvetica, sans-serif;
+
+}
+
+
+.header-licenciados .header-licenciados-titulo {
+    display: flex;
+    text-align: left;
+}
+
+.header-licenciados-buscador {
+    display: flex;
+    justify-content: end;
+    gap: 10px;
+}
+
+
+.header-licenciados-buscador {
+    display: flex;
+    align-items: center;
+    position: relative; /* Garante que o ícone da lupa seja posicionado corretamente */
+}
+
+.header-licenciados-buscador i.pi-search {
+    position: absolute;
+    left: -10px; /* Posiciona a lupa dentro do campo de busca */
+    top: 50%;
+    transform: translateY(-50%);
+    color: #999; /* Cor da lupa */
+}
+
+.header-licenciados-buscador input {
+    padding-left: 35px; /* Garante espaço suficiente para o ícone da lupa */
+    width: 200px; /* Ajusta a largura conforme necessário */
+}
+
+
