@@ -9,10 +9,10 @@ import { Button } from 'primereact/button';
 import { Toast } from 'primereact/toast';
 import CardFooter from '../../Components/footer';
 import CardHeader from '../../Components/header';
-import UserEditForm from '../../Components/UserEditForm/UserEditForm';
-import UserCreateForm from '../../Components/UserCreateForm/UserCreateForm';
 import LicenciadoSelectModal from '../../Components/LicenciadoSelectModal/LicenciadoSelectModal';
 import { Dialog } from 'primereact/dialog';
+import UserCreateForm from './UsuarioCreate/UsuarioCreate'; 
+import UserEditForm from './UsuarioEdit/UsuarioEdit';
 import './UsuarioPage.css';
 
 const UsuariosPage = () => {

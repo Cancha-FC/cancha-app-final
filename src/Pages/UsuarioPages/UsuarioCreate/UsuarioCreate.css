@@ -1,0 +1,52 @@
+.usuario-form {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    margin-bottom: 3px;
+    max-width: 400px; /* Defina um limite de largura, ajuste conforme necessário */
+    margin: auto;
+}
+
+.usuario-form-inputs {
+    display: flex;
+    flex-direction: column;
+    gap: 10px; /* Adiciona espaço entre os inputs */
+}
+
+.usuario-form-inputs div {
+    display: flex;
+    flex-direction: column;
+    width: 100%; /* Para garantir que todos os inputs tenham o mesmo tamanho */
+}
+
+.usuario-form-inputs label {
+    margin-bottom: 5px; /* Espaço entre o label e o input */
+}
+
+.usuario-form-checkbox {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.usuario-form-checkbox div {
+    display: flex;
+    align-items: center;
+}
+
+.usuario-form-checkbox label {
+    margin-top: 20px;
+    margin-left: 5px;
+}
+
+.usuario-form-buttom {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 10px;
+}
+
+.usuario-form-buttom .p-button {
+    width: 48%; /* Garante que os botões tenham o mesmo tamanho */
+}
+

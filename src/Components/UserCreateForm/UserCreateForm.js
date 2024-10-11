@@ -1,116 +1,116 @@
-import React, { useState, useRef } from 'react';
-import { InputText } from 'primereact/inputtext';
-import { Button } from 'primereact/button';
-import { Password } from 'primereact/password';
-import { Checkbox } from 'primereact/checkbox';
-import { Toast } from 'primereact/toast';
+// import React, { useState, useRef } from 'react';
+// import { InputText } from 'primereact/inputtext';
+// import { Button } from 'primereact/button';
+// import { Password } from 'primereact/password';
+// import { Checkbox } from 'primereact/checkbox';
+// import { Toast } from 'primereact/toast';
 
-const UserCreateForm = ({ onClose, onUserCreated }) => {
-    const [formData, setFormData] = useState({
-        username: '',
-        email: '',
-        first_name: '',
-        last_name: '',
-        is_active: true,
-        is_staff: false,
-        password: '',
-    });
+// const UserCreateForm = ({ onClose, onUserCreated }) => {
+//     const [formData, setFormData] = useState({
+//         username: '',
+//         email: '',
+//         first_name: '',
+//         last_name: '',
+//         is_active: true,
+//         is_staff: false,
+//         password: '',
+//     });
 
-    const [errors, setErrors] = useState({});
-    const toast = useRef(null);
+//     const [errors, setErrors] = useState({});
+//     const toast = useRef(null);
 
-    const handleChange = (e) => {
-        const { name, value, checked, type } = e.target;
-        setFormData({
-            ...formData,
-            [name]: type === 'checkbox' ? checked : value,
-        });
-    };
+//     const handleChange = (e) => {
+//         const { name, value, checked, type } = e.target;
+//         setFormData({
+//             ...formData,
+//             [name]: type === 'checkbox' ? checked : value,
+//         });
+//     };
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
+//     const handleSubmit = async (e) => {
+//         e.preventDefault();
 
-        if (!formData.password) {
-            setErrors({ password: 'Senha é obrigatória.' });
-            return;
-        }
+//         if (!formData.password) {
+//             setErrors({ password: 'Senha é obrigatória.' });
+//             return;
+//         }
 
-        try {
-            const response = await fetch(`http://127.0.0.1:8000/api/users/`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Token ${localStorage.getItem('token')}`,
-                },
-                body: JSON.stringify(formData),
-            });
+//         try {
+//             const response = await fetch(`http://127.0.0.1:8000/api/users/`, {
+//                 method: 'POST',
+//                 headers: {
+//                     'Content-Type': 'application/json',
+//                     'Authorization': `Token ${localStorage.getItem('token')}`,
+//                 },
+//                 body: JSON.stringify(formData),
+//             });
 
-            if (!response.ok) {
-                const errorData = await response.json();
-                setErrors(errorData);
-                throw new Error('Erro ao criar usuário');
-            }
+//             if (!response.ok) {
+//                 const errorData = await response.json();
+//                 setErrors(errorData);
+//                 throw new Error('Erro ao criar usuário');
+//             }
 
-            const createdUser = await response.json();
-            toast.current.show({ severity: 'success', summary: 'Sucesso', detail: 'Usuário criado com sucesso' });
-            if (onUserCreated) {
-                onUserCreated();
-            }
-            onClose();
-        } catch (error) {
-            console.error('Erro ao criar usuário:', error);
-            toast.current.show({ severity: 'error', summary: 'Erro', detail: error.message });
-        }
-    };
+//             const createdUser = await response.json();
+//             toast.current.show({ severity: 'success', summary: 'Sucesso', detail: 'Usuário criado com sucesso' });
+//             if (onUserCreated) {
+//                 onUserCreated();
+//             }
+//             onClose();
+//         } catch (error) {
+//             console.error('Erro ao criar usuário:', error);
+//             toast.current.show({ severity: 'error', summary: 'Erro', detail: error.message });
+//         }
+//     };
 
-    return (
-        <form onSubmit={handleSubmit} className="p-fluid">
-            <div className="field">
-                <label htmlFor="username">Usuário</label>
-                <InputText id="username" name="username" value={formData.username} onChange={handleChange} required />
-                {errors.username && <small className="p-error">{errors.username}</small>}
-            </div>
+//     return (
+//         <form onSubmit={handleSubmit} className="p-fluid">
+//             <div className="field">
+//                 <label htmlFor="username">Usuário</label>
+//                 <InputText id="username" name="username" value={formData.username} onChange={handleChange} required />
+//                 {errors.username && <small className="p-error">{errors.username}</small>}
+//             </div>
 
-            <div className="field">
-                <label htmlFor="email">Email</label>
-                <InputText id="email" name="email" value={formData.email} onChange={handleChange} required />
-                {errors.email && <small className="p-error">{errors.email}</small>}
-            </div>
+//             <div className="field">
+//                 <label htmlFor="email">Email</label>
+//                 <InputText id="email" name="email" value={formData.email} onChange={handleChange} required />
+//                 {errors.email && <small className="p-error">{errors.email}</small>}
+//             </div>
 
-            <div className="field">
-                <label htmlFor="first_name">Nome</label>
-                <InputText id="first_name" name="first_name" value={formData.first_name} onChange={handleChange} />
-            </div>
+//             <div className="field">
+//                 <label htmlFor="first_name">Nome</label>
+//                 <InputText id="first_name" name="first_name" value={formData.first_name} onChange={handleChange} />
+//             </div>
 
-            <div className="field">
-                <label htmlFor="last_name">Sobrenome</label>
-                <InputText id="last_name" name="last_name" value={formData.last_name} onChange={handleChange} />
-            </div>
+//             <div className="field">
+//                 <label htmlFor="last_name">Sobrenome</label>
+//                 <InputText id="last_name" name="last_name" value={formData.last_name} onChange={handleChange} />
+//             </div>
 
-            <div className="field">
-                <label htmlFor="password">Senha</label>
-                <Password id="password" name="password" value={formData.password} onChange={handleChange} toggleMask required />
-                {errors.password && <small className="p-error">{errors.password}</small>}
-            </div>
+//             <div className="field">
+//                 <label htmlFor="password">Senha</label>
+//                 <Password id="password" name="password" value={formData.password} onChange={handleChange} toggleMask required />
+//                 {errors.password && <small className="p-error">{errors.password}</small>}
+//             </div>
 
-            <div className="field-checkbox">
-                <Checkbox inputId="is_active" name="is_active" checked={formData.is_active} onChange={handleChange} />
-                <label htmlFor="is_active">{formData.is_active ? 'Ativo' : 'Inativo'}</label>
-            </div>
+//             <div className="field-checkbox">
+//                 <Checkbox inputId="is_active" name="is_active" checked={formData.is_active} onChange={handleChange} />
+//                 <label htmlFor="is_active">{formData.is_active ? 'Ativo' : 'Inativo'}</label>
+//             </div>
 
-            <div className="field-checkbox">
-                <Checkbox inputId="is_staff" name="is_staff" checked={formData.is_staff} onChange={handleChange} />
-                <label htmlFor="is_staff">{formData.is_staff ? 'É Staff' : 'Não é Staff'}</label>
-            </div>
+//             <div className="field-checkbox">
+//                 <Checkbox inputId="is_staff" name="is_staff" checked={formData.is_staff} onChange={handleChange} />
+//                 <label htmlFor="is_staff">{formData.is_staff ? 'É Staff' : 'Não é Staff'}</label>
+//             </div>
 
-            <div className="p-d-flex p-jc-between">
-                <Button type="button" label="Cancelar" className="p-button-secondary" onClick={onClose} />
-                <Button type="submit" label="Criar" className="p-button-primary" />
-            </div>
+//             <div className="p-d-flex p-jc-between">
+//                 <Button type="button" label="Cancelar" className="p-button-secondary" onClick={onClose} />
+//                 <Button type="submit" label="Criar" className="p-button-primary" />
+//             </div>
 
-            <Toast ref={toast} />
-        </form>
-    );
-};
+//             <Toast ref={toast} />
+//         </form>
+//     );
+// };
 
-export default UserCreateForm;
+// export default UserCreateForm;
