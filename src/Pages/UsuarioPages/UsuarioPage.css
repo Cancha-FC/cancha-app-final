@@ -6,7 +6,6 @@
     flex-direction: row;
     font-family: Arial, Helvetica, sans-serif;
 
-
 }
 
 
@@ -54,5 +53,21 @@ input {
     overflow: hidden; /* Garante que nada estoure o conteúdo */
     text-align: center;
 }
+
+/* Centraliza o conteúdo dentro da célula */
+.p-datatable .p-column-header, .p-datatable .p-datatable-tbody > tr > td {
+    text-align: center; /* Centraliza o conteúdo da célula */
+    vertical-align: middle; /* Centraliza verticalmente */
+    
+}
+
+/* Ajusta a coluna específica de "Licenciados" */
+.p-datatable .p-datatable-tbody .pi-briefcase {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    
+}
+
 
 

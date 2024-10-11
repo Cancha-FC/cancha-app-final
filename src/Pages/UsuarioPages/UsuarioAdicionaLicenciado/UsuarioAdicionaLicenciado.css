@@ -1,0 +1,11 @@
+.select-licenciado-button {
+    display: flex;
+    justify-content: space-between; /* Garante que os botões fiquem afastados */
+    margin-top: 15px; /* Espaço entre a tabela e os botões */
+    
+}
+
+.select-licenciado-button .p-button {
+    width: 50%; /* Garante que os botões tenham o mesmo tamanho */
+    margin-left: 5px;
+}

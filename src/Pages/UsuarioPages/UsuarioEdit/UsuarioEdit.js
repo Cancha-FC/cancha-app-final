@@ -4,6 +4,7 @@ import { Button } from 'primereact/button';
 import { Toast } from 'primereact/toast';
 import { Password } from 'primereact/password';
 import { Checkbox } from 'primereact/checkbox';
+import './UsuarioEdit.css';
 
 const UserEditForm = ({ user, onClose }) => {
     const [formData, setFormData] = useState({

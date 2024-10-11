@@ -9,10 +9,10 @@ import { Button } from 'primereact/button';
 import { Toast } from 'primereact/toast';
 import CardFooter from '../../Components/footer';
 import CardHeader from '../../Components/header';
-import LicenciadoSelectModal from '../../Components/LicenciadoSelectModal/LicenciadoSelectModal';
 import { Dialog } from 'primereact/dialog';
 import UserCreateForm from './UsuarioCreate/UsuarioCreate'; 
 import UserEditForm from './UsuarioEdit/UsuarioEdit';
+import LicenciadoSelectModal from './UsuarioAdicionaLicenciado/UsuarioAdicionaLicenciado';
 import './UsuarioPage.css';
 
 const UsuariosPage = () => {
@@ -181,11 +181,18 @@ const UsuariosPage = () => {
                         body={(rowData) => (
                             <Button 
                                 icon="pi pi-briefcase"
+                                style={{ width: '40px', height: '40px' }}
                                 onClick={() => openLicenciadoModal(rowData)}
                             />
                         )}
                     />
-                    <Column header="Editar" body={(rowData) => <Button  icon="pi pi-pen-to-square" onClick={() => openEditModal(rowData)} />} />
+                    <Column header="Editar" body={(rowData) => 
+                        <Button 
+                            icon="pi pi-pen-to-square" 
+                            style={{ width: '40px', height: '40px' }}
+                            onClick={() => openEditModal(rowData)} 
+                        />} 
+                    />
                 </DataTable>
             </div>
 
