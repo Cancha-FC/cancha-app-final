@@ -27,7 +27,7 @@ const FilterBar = ({ onFilter }) => {
     const [licensees, setLicensees] = useState([]); 
     const [searchTerm, setSearchTerm] = useState(''); 
     const [modalVisible, setModalVisible] = useState(false); 
-    const [dateModalVisible, setDateModalVisible] = useState(false); 
+    const [dateModalVisible, setDateModalVisible] = useState(false); // Estado do modal de datas
 
     useEffect(() => {
         const fetchLicenciados = async () => {
@@ -76,24 +76,14 @@ const FilterBar = ({ onFilter }) => {
         }
     };
 
-    // Função para formatar as datas no formato "dd/mm/yyyy a dd/mm/yyyy"
-    const getFormattedDateRange = () => {
-        if (startDate && endDate) {
-            const formattedStartDate = new Date(startDate).toLocaleDateString('pt-BR');
-            const formattedEndDate = new Date(endDate).toLocaleDateString('pt-BR');
-            return `${formattedStartDate} a ${formattedEndDate}`;
-        }
-        return 'Selecionar Período';
-    };
-
     return (
         <div className="filter-bar">
             {/* Botão para abrir o modal de datas */}
-            <Button label={getFormattedDateRange()} icon="pi pi-calendar" onClick={() => setDateModalVisible(true)} />
+            <Button className="button-select" label="Selecionar Período" icon="pi pi-calendar" onClick={() => setDateModalVisible(true)} />
 
             {/* Botão para abrir o modal de seleção de licenciados */}
             <div className="dropdown-licenciados">
-                <Button label={getSelectedLicenseesLabel()} icon="pi pi-users" onClick={() => setModalVisible(true)} />
+                <Button className="button-select" label={getSelectedLicenseesLabel()} icon="pi pi-users" onClick={() => setModalVisible(true)} />
             </div>
 
             {/* Botão de busca */}

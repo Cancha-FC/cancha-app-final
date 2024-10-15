@@ -1,13 +1,14 @@
 .filter-bar {
     display: flex;
     gap: 1rem;
-    align-items: center;
-    justify-content: space-between;
+    align-items: center; /* Mantém os elementos alinhados verticalmente */
+    justify-content: flex-end; /* Alinha todos os botões à direita */
     padding: 1rem;
     background-color: #f7f7f7;
     border-radius: 8px;
     flex-wrap: nowrap; /* Mantém os elementos em uma única linha */
 }
+
 
 .calendar-container {
     display: flex;
@@ -45,6 +46,14 @@ label {
 .p-calendar {
     width: 100%;
 }
+
+
+.filter-bar .button-select {
+    background-color: white;
+    color: black;
+    border: 0.5px solid black;
+}
+
 
 
 @media (max-width: 768px) {
