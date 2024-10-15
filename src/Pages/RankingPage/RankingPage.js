@@ -6,12 +6,16 @@ import FilterBar from '../../Components/FilterBar/FilterBar'; // Componente de f
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { ProductService } from '../../service/ProductService';
-import './RankingPage.css'
+import { SelectButton } from 'primereact/selectbutton';
+import './RankingPage.css';
 
 const RankingPage = () => {
   const [products, setProducts] = useState([]);
   const [filters, setFilters] = useState({});
+  const options = ['Licenciado', 'Produto'];  // Opções do SelectButton
+  const [value, setValue] = useState(options[0]); // Estado inicial como "Licenciado"
 
+  // Busca os dados
   useEffect(() => {
     ProductService.getProductsMini().then(data => {
       if (filters.startDate || filters.endDate || filters.selectedLicensee) {
@@ -45,19 +49,36 @@ const RankingPage = () => {
         <CardHeader />
       </div>
 
-      <h1>Ranking</h1>
+      <div className="ranking-top">
+        <h1>Ranking</h1>
+        <div className="ranking-top-seletor">
+          <SelectButton value={value} onChange={(e) => setValue(e.value)} options={options} />
+        </div>
+      </div>
 
       {/* Componente FilterBar */}
       <FilterBar onFilter={handleFilter} />
 
-      {/* Tabela de produtos */}
+      {/* Renderização condicional das tabelas */}
       <div className="TabRanking">
-        <DataTable value={products} stripedRows tableStyle={{ minWidth: '50rem' }}>
-          <Column field="code" header="Code"></Column>
-          <Column field="name" header="Name"></Column>
-          <Column field="category" header="Category"></Column>
-          <Column field="quantity" header="Quantity"></Column>
-        </DataTable>
+        {value === 'Licenciado' && (
+          <DataTable value={products} stripedRows tableStyle={{ minWidth: '50rem' }}>
+            <Column field="code" header="Cod. Licenciado"></Column>
+            <Column field="name" header="Nome Licenciado"></Column>
+            <Column field="quantity" header="Quantidade"></Column>
+            <Column field="revenue" header="Receita"></Column>
+          </DataTable>
+        )}
+
+        {value === 'Produto' && (
+          <DataTable value={products} stripedRows tableStyle={{ minWidth: '50rem' }}>
+            <Column field="code" header="Cod. Produto"></Column>
+            <Column field="name" header="Nome Produto"></Column>
+            <Column field="category" header="Licenciado"></Column>
+            <Column field="quantity" header="Quantidade"></Column>
+            <Column field="revenue" header="Receita"></Column>
+          </DataTable>
+        )}
       </div>
 
       <div>

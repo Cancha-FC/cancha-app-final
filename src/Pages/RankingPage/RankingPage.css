@@ -1,0 +1,48 @@
+.ranking-top {
+    display: flex;
+    justify-content: space-between; /* Distribui o título e os botões em extremos */
+    align-items: center; /* Alinha os elementos verticalmente ao centro */
+    margin-left: 5px;
+    margin-right: 10px;
+    width: 100%; /* Garante que o container ocupa todo o espaço */
+}
+
+.ranking-top-seletor {
+    display: flex;
+    justify-content: flex-end; /* Alinha os botões à direita */
+    gap: 10px; /* Espaçamento entre os botões */
+    margin-right: 10px;
+    /* margin-top: 10px; */
+}
+
+/* Estilo para garantir agrupamento correto dos botões */
+.p-selectbutton .p-button {
+    flex: 1 1 auto; /* Faz com que ambos os botões cresçam igualmente */
+    text-align: center; /* Centraliza o conteúdo dos botões */
+    border-radius: 0;
+    margin: 0;
+    min-width: 120px; /* Define uma largura mínima para os botões */
+}
+
+.p-selectbutton {
+    display: flex; /* Força que os botões sejam exibidos em uma linha */
+    width: 100%; /* Garante que o grupo de botões ocupe todo o espaço disponível */
+}
+
+.p-selectbutton .p-button:first-child {
+    border-radius: 50px 0 0 50px; /* Borda arredondada apenas à esquerda */
+}
+
+.p-selectbutton .p-button:last-child {
+    border-radius: 0 50px 50px 0; /* Borda arredondada apenas à direita */
+}
+
+.p-selectbutton .p-button:not(.p-highlight) {
+    background-color: #f0f0f0;
+    color: #333;
+}
+
+.p-selectbutton .p-button.p-highlight {
+    background-color: #00bcd4;
+    color: white;
+}
