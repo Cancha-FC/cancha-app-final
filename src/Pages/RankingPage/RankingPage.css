@@ -27,6 +27,11 @@
 .p-selectbutton {
     display: flex; /* Força que os botões sejam exibidos em uma linha */
     width: 100%; /* Garante que o grupo de botões ocupe todo o espaço disponível */
+    
+}
+
+.p-selectbutton .p-button {
+    border: 1px solid #ccc;
 }
 
 .p-selectbutton .p-button:first-child {

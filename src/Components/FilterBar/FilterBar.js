@@ -28,6 +28,7 @@ const FilterBar = ({ onFilter }) => {
     const [searchTerm, setSearchTerm] = useState(''); 
     const [modalVisible, setModalVisible] = useState(false); 
     const [dateModalVisible, setDateModalVisible] = useState(false); // Estado do modal de datas
+    const [allSelected, setAllSelected] = useState(false); // Estado para a seleção de todos os licenciados
 
     useEffect(() => {
         const fetchLicenciados = async () => {
@@ -47,6 +48,9 @@ const FilterBar = ({ onFilter }) => {
         fetchLicenciados();
     }, []);
 
+
+
+    // Função para controlar a seleção de licenciados
     const onLicenseeSelect = (e, licenciado) => {
         const selected = [...selectedLicensees];
         if (e.checked) {
@@ -56,6 +60,22 @@ const FilterBar = ({ onFilter }) => {
             selected.splice(index, 1);
         }
         setSelectedLicensees(selected);
+    };
+
+
+
+     // Função para selecionar todos os licenciados filtrados
+     const selectAllLicensees = (e) => {
+        if (e.checked) {
+            const filteredLicensees = licensees.filter((licenciado) =>
+                licenciado.nome.toLowerCase().includes(searchTerm.toLowerCase())
+            );
+            setSelectedLicensees(filteredLicensees); // Seleciona apenas os licenciados filtrados
+            setAllSelected(true);
+        } else {
+            setSelectedLicensees([]); // Desseleciona todos
+            setAllSelected(false);
+        }
     };
 
     const handleSearch = () => {
@@ -76,10 +96,21 @@ const FilterBar = ({ onFilter }) => {
         }
     };
 
+
+    const getPeriodLabel = () => {
+        if (startDate && endDate) {
+            const start = startDate.toLocaleDateString('pt-BR');
+            const end = endDate.toLocaleDateString('pt-BR');
+            return `${start} a ${end}`; // Exibe as duas datas no formato "dd/mm/yyyy a dd/mm/yyyy"
+        } else {
+            return 'Selecionar Período'; // Texto padrão se nenhuma data for selecionada
+        }
+    };
+
     return (
         <div className="filter-bar">
             {/* Botão para abrir o modal de datas */}
-            <Button className="button-select" label="Selecionar Período" icon="pi pi-calendar" onClick={() => setDateModalVisible(true)} />
+            <Button className="button-select" label={getPeriodLabel()} icon="pi pi-calendar" onClick={() => setDateModalVisible(true)} />
 
             {/* Botão para abrir o modal de seleção de licenciados */}
             <div className="dropdown-licenciados">
@@ -90,9 +121,9 @@ const FilterBar = ({ onFilter }) => {
             <Button label="Buscar" icon="pi pi-search" onClick={handleSearch} />
 
             {/* Modal para selecionar o período de datas */}
-            <Dialog header="Período de consulta" visible={dateModalVisible} onHide={() => setDateModalVisible(false)} style={{ width: '40vw' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-around' }}>
-                    <div className="calendar-container">
+            <Dialog className="popup-seleciona-data" header="Período de consulta" visible={dateModalVisible} onHide={() => setDateModalVisible(false)}>
+                <div className="popup-seleciona-data-datas">
+                    <div className="input-wrapper">
                         <label htmlFor="start">Início</label>
                         <Calendar
                             id="start"
@@ -106,7 +137,7 @@ const FilterBar = ({ onFilter }) => {
                         />
                     </div>
 
-                    <div className="calendar-container">
+                    <div className="input-wrapper">
                         <label htmlFor="end">Fim</label>
                         <Calendar
                             id="end"
@@ -121,25 +152,33 @@ const FilterBar = ({ onFilter }) => {
                     </div>
                 </div>
 
-                <Button label="Confirmar" icon="pi pi-check" onClick={() => setDateModalVisible(false)} style={{ marginTop: '10px' }} />
+                <Button label="Confirmar" icon="pi pi-check" onClick={() => setDateModalVisible(false)} className="confirm-button" />
             </Dialog>
 
-            {/* Modal para selecionar os licenciados */}
-            <Dialog header="Seleção de Licenciados" visible={modalVisible} onHide={() => setModalVisible(false)} style={{ width: '50vw' }}>
-                <span className="p-input-icon-left" style={{ marginBottom: '10px' }}>
+      {/* Modal para selecionar os licenciados */}
+      <Dialog header="Seleção de Licenciados" visible={modalVisible} onHide={() => setModalVisible(false)} style={{ width: '50vw' }}>
+                {/* Campo de pesquisa ajustado para ocupar toda a largura */}
+                <span className="p-input-icon-left" style={{ marginBottom: '10px', width: '100%' }}>
                     <i className="pi pi-search" />
-                    <InputText value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} placeholder="Pesquisar Licenciado" />
+                    <InputText value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} placeholder="Pesquisar Licenciado" style={{ width: '100%' }} />
                 </span>
 
+                {/* Tabela com a opção de selecionar todos */}
                 <DataTable value={filteredLicensees}>
                     <Column
+                        header={
+                            <Checkbox
+                                checked={allSelected}
+                                onChange={selectAllLicensees}
+                            />
+                        }
                         body={(rowData) => (
                             <Checkbox
                                 checked={selectedLicensees.some((l) => l.id === rowData.id)}
                                 onChange={(e) => onLicenseeSelect(e, rowData)}
                             />
                         )}
-                        header="Selecionar"
+                        headerStyle={{ width: '3em' }} // Para ajustar o tamanho do checkbox de seleção
                     />
                     <Column field="nome" header="Nome" />
                 </DataTable>

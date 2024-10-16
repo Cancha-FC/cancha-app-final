@@ -36,6 +36,7 @@
     top: 50%;
     transform: translateY(-50%);
     color: #999; /* Cor da lupa */
+    
 }
 
 .header-licenciados-buscador input {
