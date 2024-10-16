@@ -69,7 +69,7 @@ const LoginPage = () => {
           localStorage.removeItem('password');
         }
 
-        window.location.href = '/usuarios'; // Redireciona para a página de usuários
+        window.location.href = '/'; // Redireciona para a página de usuários
       } else {
         const errorData = await response.json();
         setErrorMessage(errorData.detail || 'Login falhou. Sua conta está inativa entre em contato com o suporte.'); // Mensagem de erro do servidor

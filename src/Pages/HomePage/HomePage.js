@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { PrimeReactProvider } from 'primereact/api';
 import { Chart } from 'primereact/chart';
 import CardFooter from '../../Components/footer';
@@ -8,35 +8,68 @@ import './HomePage.css'; // Importar o CSS para estilização
 
 const HomePage = () => {
   const [filters, setFilters] = useState({});
+  const [vendasPorDia, setVendasPorDia] = useState(null);
+  const [vendasPorProduto, setVendasPorProduto] = useState(null);
+  const [cardData, setCardData] = useState({
+    pedidos: 0,
+    volume: 0,
+    venda: 0,
+    comissao: 0,
+  });
 
   // Função chamada quando o filtro é aplicado
   const handleFilter = (filterData) => {
     setFilters(filterData);
   };
 
-  // Dados para o gráfico de "Venda x Dia"
-  const vendasPorDia = {
-    labels: ['01/01/2024', '02/01/2024', '03/01/2024', '04/01/2024', '05/01/2024', '06/01/2024', '07/01/2024'],
-    datasets: [
-      {
-        label: 'Vendas',
-        backgroundColor: '#46ad5a',
-        data: [10, 7, 6, 9, 12, 8, 10]
-      }
-    ]
+  // Função para buscar os dados da API
+  const fetchData = async () => {
+    try {
+      const responseDia = await fetch('http://127.0.0.1:8000/api/vendas/dia/'); // Endpoint para vendas por dia
+      const responseProduto = await fetch('http://127.0.0.1:8000/api/vendas/produto/'); // Endpoint para vendas por produto
+      const responseCards = await fetch('http://127.0.0.1:8000/api/vendas/cards/'); // Endpoint para dados dos cards
+
+      const dataDia = await responseDia.json();
+      const dataProduto = await responseProduto.json();
+      const dataCards = await responseCards.json();
+
+      setVendasPorDia({
+        labels: dataDia.map((item) => item.dia),
+        datasets: [
+          {
+            label: 'Vendas',
+            backgroundColor: '#46ad5a',
+            data: dataDia.map((item) => item.vendas)
+          }
+        ]
+      });
+
+      setVendasPorProduto({
+        labels: dataProduto.map((item) => item.produto),
+        datasets: [
+          {
+            label: 'Vendas',
+            backgroundColor: '#46ad5a',
+            data: dataProduto.map((item) => item.vendas)
+          }
+        ]
+      });
+
+      setCardData({
+        pedidos: dataCards.pedidos,
+        volume: dataCards.volume,
+        venda: dataCards.venda,
+        comissao: dataCards.comissao,
+      });
+    } catch (error) {
+      console.error('Erro ao buscar dados:', error);
+    }
   };
 
-  // Dados para o gráfico de "Venda x Produto"
-  const vendasPorProduto = {
-    labels: ['Produto 1', 'Produto 2', 'Produto 3', 'Produto 4', 'Produto 5', 'Produto 6', 'Produto 7', 'Produto 8', 'Produto 9', 'Produto 10'],
-    datasets: [
-      {
-        label: 'Vendas',
-        backgroundColor: '#46ad5a',
-        data: [12, 9, 7, 8, 12, 10, 6, 5, 4, 3]
-      }
-    ]
-  };
+  // Função chamada ao montar o componente
+  useEffect(() => {
+    fetchData();
+  }, []);
 
   // Opções para o gráfico de barras verticais
   const chartOptions = {
@@ -81,7 +114,7 @@ const HomePage = () => {
             </div>
             <div className="card-info">
               <h3>Pedidos</h3>
-              <span>3.941</span>
+              <span>{cardData.pedidos}</span>
             </div>
           </div>
         </div>
@@ -93,7 +126,7 @@ const HomePage = () => {
             </div>
             <div className="card-info">
               <h3>Volume</h3>
-              <span>5.611</span>
+              <span>{cardData.volume}</span>
             </div>
           </div>
         </div>
@@ -105,7 +138,7 @@ const HomePage = () => {
             </div>
             <div className="card-info">
               <h3>Venda</h3>
-              <span>R$512.611</span>
+              <span>R${cardData.venda}</span>
             </div>
           </div>
         </div>
@@ -117,7 +150,7 @@ const HomePage = () => {
             </div>
             <div className="card-info">
               <h3>Comissão</h3>
-              <span>R$51.611</span>
+              <span>R${cardData.comissao}</span>
             </div>
           </div>
         </div>
@@ -126,13 +159,13 @@ const HomePage = () => {
       {/* Gráfico de Venda x Dia */}
       <div className="chart-container">
         <h2>Venda x Dia</h2>
-        <Chart type="bar" data={vendasPorDia} options={chartOptions} />
+        {vendasPorDia ? <Chart type="bar" data={vendasPorDia} options={chartOptions} /> : 'Carregando dados...'}
       </div>
 
       {/* Gráfico de Venda x Produto - Barras Horizontais */}
       <div className="chart-container">
         <h2>Venda x Produto</h2>
-        <Chart type="bar" data={vendasPorProduto} options={horizontalChartOptions} />
+        {vendasPorProduto ? <Chart type="bar" data={vendasPorProduto} options={horizontalChartOptions} /> : 'Carregando dados...'}
       </div>
 
       <div>
@@ -140,6 +173,6 @@ const HomePage = () => {
       </div>
     </PrimeReactProvider>
   );
-}
+};
 
 export default HomePage;
