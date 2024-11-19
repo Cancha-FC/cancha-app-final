@@ -5,38 +5,68 @@ import CardHeader from '../../Components/header';
 import FilterBar from '../../Components/FilterBar/FilterBar'; // Componente de filtro
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
-import { ProductService } from '../../service/ProductService';
 import { SelectButton } from 'primereact/selectbutton';
 import './RankingPage.css';
 
 const RankingPage = () => {
-  const [products, setProducts] = useState([]);
+  const [licenciados, setLicenciados] = useState([]);
   const [filters, setFilters] = useState({});
   const options = ['Licenciado', 'Produto'];  // Opções do SelectButton
   const [value, setValue] = useState(options[0]); // Estado inicial como "Licenciado"
 
-  // Busca os dados
-  useEffect(() => {
-    ProductService.getProductsMini().then(data => {
-      if (filters.startDate || filters.endDate || filters.selectedLicensee) {
-        const filteredData = data.filter(product => {
-          let match = true;
-          if (filters.startDate) {
-            match = match && product.date >= filters.startDate;
-          }
-          if (filters.endDate) {
-            match = match && product.date <= filters.endDate;
-          }
-          if (filters.selectedLicensee) {
-            match = match && product.licensee === filters.selectedLicensee;
-          }
-          return match;
-        });
-        setProducts(filteredData);
-      } else {
-        setProducts(data);
+  // Função para buscar o ranking de licenciados
+  const fetchLicenciadosRanking = async () => {
+    try {
+      const params = new URLSearchParams();
+
+      if (filters.startDate) params.append('pedido_data__gte', filters.startDate);
+      if (filters.endDate) params.append('pedido_data__lte', filters.endDate);
+      if (filters.selectedLicensee) params.append('codigoCategoria', filters.selectedLicensee); // Filtro por licenciado
+
+      const response = await fetch(`http://127.0.0.1:8000/api/pedido-itens/?${params.toString()}`, {
+        headers: {
+          'Authorization': `Token ${localStorage.getItem('token')}`,
+        },
+      });
+
+      const data = await response.json();
+
+      // Processando os dados para calcular o ranking de licenciados
+      const ranking = processRanking(data);
+      setLicenciados(ranking);
+    } catch (error) {
+      console.error('Erro ao buscar o ranking de licenciados:', error);
+    }
+  };
+
+  // Função para processar os dados de pedidos e calcular o ranking de licenciados
+  const processRanking = (pedidoItens) => {
+    const licenciadosMap = {};
+
+    pedidoItens.forEach((item) => {
+      const { codigoCategoria, quantidade, valor, codigoCategoria__nome } = item;
+
+      // Se o licenciado já existe no map, atualiza os valores
+      if (!licenciadosMap[codigoCategoria]) {
+        licenciadosMap[codigoCategoria] = {
+          nome: codigoCategoria__nome, // Nome do licenciado
+          totalVolume: 0,
+          totalReceita: 0, // Adicionando a receita
+        };
       }
+
+      // Acumulando o volume (quantidade de produtos vendidos) e a receita
+      licenciadosMap[codigoCategoria].totalVolume += parseFloat(quantidade || 0);
+      licenciadosMap[codigoCategoria].totalReceita += parseFloat(valor || 0);
     });
+
+    // Convertendo o map para um array e ordenando pelo volume de vendas
+    return Object.values(licenciadosMap).sort((a, b) => b.totalVolume - a.totalVolume);
+  };
+
+  // Filtro de dados
+  useEffect(() => {
+    fetchLicenciadosRanking();
   }, [filters]);
 
   const handleFilter = (filterData) => {
@@ -62,22 +92,16 @@ const RankingPage = () => {
       {/* Renderização condicional das tabelas */}
       <div className="TabRanking">
         {value === 'Licenciado' && (
-          <DataTable value={products} stripedRows tableStyle={{ minWidth: '50rem' }}>
-            <Column field="code" header="Cod. Licenciado"></Column>
-            <Column field="name" header="Nome Licenciado"></Column>
-            <Column field="quantity" header="Quantidade"></Column>
-            <Column field="revenue" header="Receita"></Column>
+          <DataTable value={licenciados} stripedRows tableStyle={{ minWidth: '50rem' }}>
+            <Column field="nome" header="Licenciado" sortable filter />
+            <Column field="totalVolume" header="Volume de Vendas" sortable filter />
+            <Column field="totalReceita" header="Receita" sortable filter />
           </DataTable>
         )}
 
         {value === 'Produto' && (
-          <DataTable value={products} stripedRows tableStyle={{ minWidth: '50rem' }}>
-            <Column field="code" header="Cod. Produto"></Column>
-            <Column field="name" header="Nome Produto"></Column>
-            <Column field="category" header="Licenciado"></Column>
-            <Column field="quantity" header="Quantidade"></Column>
-            <Column field="revenue" header="Receita"></Column>
-          </DataTable>
+          // Aqui você pode adicionar a lógica do ranking de produtos, se necessário
+          <div>Ranking de Produtos ainda não implementado.</div>
         )}
       </div>
 

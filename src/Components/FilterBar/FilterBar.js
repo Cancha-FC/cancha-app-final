@@ -23,12 +23,12 @@ addLocale('pt-BR', {
 const FilterBar = ({ onFilter }) => {
     const [startDate, setStartDate] = useState(null);
     const [endDate, setEndDate] = useState(null);
-    const [selectedLicensees, setSelectedLicensees] = useState([]); 
-    const [licensees, setLicensees] = useState([]); 
-    const [searchTerm, setSearchTerm] = useState(''); 
-    const [modalVisible, setModalVisible] = useState(false); 
-    const [dateModalVisible, setDateModalVisible] = useState(false); // Estado do modal de datas
-    const [allSelected, setAllSelected] = useState(false); // Estado para a seleção de todos os licenciados
+    const [selectedLicensees, setSelectedLicensees] = useState([]); // IDs dos licenciados selecionados
+    const [licensees, setLicensees] = useState([]); // Lista de licenciados retornada da API
+    const [searchTerm, setSearchTerm] = useState(''); // Termo de pesquisa
+    const [modalVisible, setModalVisible] = useState(false); // Controle do modal de licenciados
+    const [dateModalVisible, setDateModalVisible] = useState(false); // Controle do modal de datas
+    const [allSelected, setAllSelected] = useState(false); // Controle da seleção de todos os licenciados
 
     useEffect(() => {
         const fetchLicenciados = async () => {
@@ -48,38 +48,42 @@ const FilterBar = ({ onFilter }) => {
         fetchLicenciados();
     }, []);
 
-
-
     // Função para controlar a seleção de licenciados
     const onLicenseeSelect = (e, licenciado) => {
         const selected = [...selectedLicensees];
         if (e.checked) {
-            selected.push(licenciado);
+            selected.push(licenciado.id); // Adiciona o ID
         } else {
-            const index = selected.indexOf(licenciado);
+            const index = selected.indexOf(licenciado.id);
             selected.splice(index, 1);
         }
         setSelectedLicensees(selected);
     };
 
-
-
-     // Função para selecionar todos os licenciados filtrados
-     const selectAllLicensees = (e) => {
+    // Função para selecionar todos os licenciados filtrados
+    const selectAllLicensees = (e) => {
         if (e.checked) {
-            const filteredLicensees = licensees.filter((licenciado) =>
-                licenciado.nome.toLowerCase().includes(searchTerm.toLowerCase())
-            );
-            setSelectedLicensees(filteredLicensees); // Seleciona apenas os licenciados filtrados
+            const filteredLicensees = licensees
+                .filter((licenciado) => licenciado.nome.toLowerCase().includes(searchTerm.toLowerCase()))
+                .map((licenciado) => licenciado.id); // Seleciona apenas os IDs
+            setSelectedLicensees(filteredLicensees);
             setAllSelected(true);
         } else {
-            setSelectedLicensees([]); // Desseleciona todos
+            setSelectedLicensees([]);
             setAllSelected(false);
         }
     };
 
     const handleSearch = () => {
-        onFilter({ startDate, endDate, selectedLicensees });
+        // Converte os IDs dos licenciados selecionados em uma string separada por vírgulas
+        const codigoCategoria = selectedLicensees.join(',');
+    
+        // Envia os filtros, incluindo o `codigoCategoria`
+        onFilter({
+            startDate,
+            endDate,
+            codigoCategoria, // IDs dos licenciados como `codigoCategoria`
+        });
     };
 
     const filteredLicensees = licensees.filter((licenciado) =>
@@ -88,22 +92,23 @@ const FilterBar = ({ onFilter }) => {
 
     const getSelectedLicenseesLabel = () => {
         if (selectedLicensees.length === 1) {
-            return selectedLicensees[0].nome; 
+            // Exibe o nome do primeiro licenciado selecionado
+            const licenciado = licensees.find((l) => l.id === selectedLicensees[0]);
+            return licenciado ? licenciado.nome : "Selecionar Licenciados";
         } else if (selectedLicensees.length > 1) {
-            return `${selectedLicensees.length} licenciados selecionados`; 
+            return `${selectedLicensees.length} licenciados selecionados`;
         } else {
-            return "Selecionar Licenciados"; 
+            return "Selecionar Licenciados";
         }
     };
-
 
     const getPeriodLabel = () => {
         if (startDate && endDate) {
             const start = startDate.toLocaleDateString('pt-BR');
             const end = endDate.toLocaleDateString('pt-BR');
-            return `${start} a ${end}`; // Exibe as duas datas no formato "dd/mm/yyyy a dd/mm/yyyy"
+            return `${start} a ${end}`;
         } else {
-            return 'Selecionar Período'; // Texto padrão se nenhuma data for selecionada
+            return 'Selecionar Período';
         }
     };
 
@@ -155,15 +160,13 @@ const FilterBar = ({ onFilter }) => {
                 <Button label="Confirmar" icon="pi pi-check" onClick={() => setDateModalVisible(false)} className="confirm-button" />
             </Dialog>
 
-      {/* Modal para selecionar os licenciados */}
-      <Dialog header="Seleção de Licenciados" visible={modalVisible} onHide={() => setModalVisible(false)} style={{ width: '50vw' }}>
-                {/* Campo de pesquisa ajustado para ocupar toda a largura */}
+            {/* Modal para selecionar os licenciados */}
+            <Dialog header="Seleção de Licenciados" visible={modalVisible} onHide={() => setModalVisible(false)} style={{ width: '50vw' }}>
                 <span className="p-input-icon-left" style={{ marginBottom: '10px', width: '100%' }}>
                     <i className="pi pi-search" />
                     <InputText value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} placeholder="Pesquisar Licenciado" style={{ width: '100%' }} />
                 </span>
 
-                {/* Tabela com a opção de selecionar todos */}
                 <DataTable value={filteredLicensees}>
                     <Column
                         header={
@@ -174,11 +177,11 @@ const FilterBar = ({ onFilter }) => {
                         }
                         body={(rowData) => (
                             <Checkbox
-                                checked={selectedLicensees.some((l) => l.id === rowData.id)}
+                                checked={selectedLicensees.includes(rowData.id)}
                                 onChange={(e) => onLicenseeSelect(e, rowData)}
                             />
                         )}
-                        headerStyle={{ width: '3em' }} // Para ajustar o tamanho do checkbox de seleção
+                        headerStyle={{ width: '3em' }}
                     />
                     <Column field="nome" header="Nome" />
                 </DataTable>
