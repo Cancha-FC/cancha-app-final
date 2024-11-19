@@ -88,55 +88,63 @@ const HomePage = () => {
   };
 
   const processGraphData = (itens) => {
-    // Vendas por Dia
+    // Processamento de Vendas por Dia
     const vendasPorDiaData = itens.reduce((acc, item) => {
       const dia = new Date(item.pedido_data).toLocaleDateString();
       acc[dia] = (acc[dia] || 0) + parseFloat(item.valor || 0);
       return acc;
     }, {});
-
+  
+    // Ordenar os dados de vendas por dia
+    const vendasPorDiaOrdenadas = Object.entries(vendasPorDiaData)
+      .sort(([dataA], [dataB]) => {
+        const dataObjA = new Date(dataA.split("/").reverse().join("-")); // Converte para ISO
+        const dataObjB = new Date(dataB.split("/").reverse().join("-")); // Converte para ISO
+        return dataObjA - dataObjB;
+      });
+  
     setVendasPorDia({
-      labels: Object.keys(vendasPorDiaData),
+      labels: vendasPorDiaOrdenadas.map(([data]) => data), // Datas ordenadas
       datasets: [
         {
           label: 'Vendas',
           backgroundColor: '#46ad5a',
-          data: Object.values(vendasPorDiaData),
+          data: vendasPorDiaOrdenadas.map(([, valor]) => valor), // Valores ordenados
         },
       ],
     });
-
-    // Vendas por Produto
+  
+    // Processamento de Vendas por Produto
     const vendasPorProdutoData = itens.reduce((acc, item) => {
       const produtoId = item.produto_id; // Agrupar por produto_id
       acc[produtoId] = (acc[produtoId] || 0) + parseFloat(item.valor || 0);
       return acc;
     }, {});
-
+  
     // Limitar a 20 produtos mais vendidos
     const top20Produtos = Object.entries(vendasPorProdutoData)
-      .sort(([, a], [, b]) => b - a) // Ordena por valor de vendas (decrescente)
-      .slice(0, 20); // Pega os 20 primeiros produtos
-
-    // Formatar os dados para o gráfico com a descrição do produto (cortando após 'Cor:')
+      .sort(([, a], [, b]) => b - a)
+      .slice(0, 20);
+  
     const topProdutos = {
       labels: top20Produtos.map(([produtoId]) => {
-        const item = itens.find((i) => i.produto_id === produtoId); // Encontrar o produto pelo ID
-        const descricao = item ? item.descricao : produtoId; // Pega a descrição
-        const nomeProduto = descricao.split(';')[0]; // Divide a descrição antes de 'Cor:'
-        return nomeProduto; // Retorna o nome do produto
-      }), // Usa a descrição como rótulo
+        const item = itens.find((i) => i.produto_id === produtoId);
+        const descricao = item ? item.descricao : produtoId;
+        const nomeProduto = descricao.split(';')[0];
+        return nomeProduto;
+      }),
       datasets: [
         {
           label: 'Vendas',
           backgroundColor: '#46ad5a',
-          data: top20Produtos.map(([, valor]) => valor), // Dados de vendas
+          data: top20Produtos.map(([, valor]) => valor),
         },
       ],
     };
-
-    setVendasPorProduto(topProdutos); // Atualiza o estado com os dados processados
+  
+    setVendasPorProduto(topProdutos);
   };
+  
 
   const chartOptions = {
     responsive: true,
@@ -172,7 +180,10 @@ const HomePage = () => {
                 <h3>{title}</h3>
                 <span>
                   {index === 2 || index === 3
-                    ? `R$${(cardData[title.toLowerCase()] || 0).toFixed(2)}`
+                    ? new Intl.NumberFormat('pt-BR', {
+                        style: 'currency',
+                        currency: 'BRL',
+                      }).format(cardData[title.toLowerCase()] || 0)
                     : cardData[title.toLowerCase()] || 0}
                 </span>
               </div>
