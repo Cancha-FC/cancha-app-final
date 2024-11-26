@@ -208,20 +208,24 @@ const HomePage = () => {
         })}
       </div>
 
-      <div className="charts-container">
+      
+
+      <div>
         {vendasPorDia && (
           <div className="chart-container">
             <h2>Venda x Dia</h2>
-            <Chart type="bar" data={vendasPorDia} />
+            <Chart type="bar" data={vendasPorDia} options={{ responsive: true, maintainAspectRatio: false }} /> 
           </div>
         )}
+        </div>
 
+        <div>
         {vendasPorRanking && (
           <div className="chart-container">
             <h2>Venda x Produto (Ranking)</h2>
-            <Chart type="bar" data={vendasPorRanking} options={{ indexAxis: 'y' }} />
+            <Chart type="bar" data={vendasPorRanking} options={{ responsive: true, maintainAspectRatio: false, indexAxis: 'y' }} />
           </div>
-        )}
+        )}        
       </div>
 
       <CardFooter />

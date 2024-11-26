@@ -67,8 +67,8 @@
 }
 
 .p-chart {
-    width: 100%;
-    height: 400px; /* Define a altura para o gráfico */
+    width: 100%; /* O gráfico ocupa 100% do contêiner */
+    height: 400px; /* Define a altura fixa */
 }
 
 /* Responsividade */
@@ -92,3 +92,24 @@
         width: 100%; /* Em telas muito pequenas, cada card ocupa a largura completa */
     }
 }
+
+@media (max-width: 768px) {
+    .chart-container {
+        padding: 1rem;
+    }
+
+    .p-chart {
+        height: 300px; /* Altura menor para telas pequenas */
+    }
+}
+
+@media (max-width: 480px) {
+    .chart-container {
+        padding: 0.5rem;
+    }
+
+    .p-chart {
+        height: 200px; /* Altura ainda menor para dispositivos muito pequenos */
+    }
+}
+
