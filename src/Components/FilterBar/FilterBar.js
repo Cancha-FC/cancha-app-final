@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Calendar } from 'primereact/calendar';
 import { Button } from 'primereact/button';
 import { Dialog } from 'primereact/dialog';
@@ -8,6 +8,7 @@ import { Column } from 'primereact/column';
 import { Checkbox } from 'primereact/checkbox';
 import { addLocale } from 'primereact/api';
 import './FilterBar.css'; // Estilos personalizados
+// cspell:disable
 
 addLocale('pt-BR', {
     firstDayOfWeek: 0,
@@ -67,7 +68,7 @@ const FilterBar = ({ onFilter }) => {
         if (startDate && endDate && selectedLicensees.length > 0) {
             handleSearch();
         }
-    }, [startDate, endDate, selectedLicensees]);
+    }, [startDate, endDate, selectedLicensees, handleSearch]); // Incluímos handleSearch no array de dependências
 
     const onLicenseeSelect = (e, licenciado) => {
         const selected = [...selectedLicensees];
@@ -93,14 +94,20 @@ const FilterBar = ({ onFilter }) => {
         }
     };
 
-    const handleSearch = () => {
+    const handleSearch = useCallback(() => {
         const codigoCategoria = selectedLicensees.join(',');
         onFilter({
             startDate,
             endDate,
             codigoCategoria,
         });
-    };
+    }, [selectedLicensees, startDate, endDate, onFilter]);
+    
+    useEffect(() => {
+        if (startDate && endDate && selectedLicensees.length > 0) {
+            handleSearch();
+        }
+    }, [startDate, endDate, selectedLicensees, handleSearch]);
 
     const filteredLicensees = licensees.filter((licenciado) =>
         licenciado.nome.toLowerCase().includes(searchTerm.toLowerCase())
