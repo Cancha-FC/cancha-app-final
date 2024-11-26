@@ -1,5 +1,3 @@
-// LicenciadosPage.js
-
 import React, { useState, useEffect, useRef } from 'react';
 import { PrimeReactProvider } from 'primereact/api';
 import { DataTable } from 'primereact/datatable';
@@ -12,7 +10,7 @@ import LicenciadoEditForm from './LicenciadosEditarComissao/LicenciadosEditarCom
 import { InputText } from 'primereact/inputtext';
 import { Tag } from 'primereact/tag';
 import { Dialog } from 'primereact/dialog';
-import './LicenciadosPage.css'
+import './LicenciadosPage.css';
 
 const LicenciadosPage = () => {
   const [licenciados, setLicenciados] = useState([]);
@@ -24,13 +22,15 @@ const LicenciadosPage = () => {
   const [selectedLicenciado, setSelectedLicenciado] = useState(null);
   const toast = useRef(null);
 
+  const BASE_URL = process.env.REACT_APP_BACKEND_URL; // Base URL do backend
+
   useEffect(() => {
     fetchLicenciados();
   }, []);
 
   const fetchLicenciados = async () => {
     try {
-      const response = await fetch('http://127.0.0.1:8000/api/licenciados/', {
+      const response = await fetch(`${BASE_URL}/licenciados/`, {
         headers: {
           'Authorization': `Token ${localStorage.getItem('token')}`,
         },
@@ -60,13 +60,8 @@ const LicenciadosPage = () => {
             <i className="pi pi-search" />
             <InputText value={globalFilterValue} onChange={onGlobalFilterChange} placeholder="Busca" />
           </span>
-          
-          <Button className="botao-inserir"  icon="pi pi-plus" rounded severity="info" aria-label="User" tooltip="Importar Novos Licenciados" />
-          
-          <Button className="botao-excel" icon="pi pi-file-excel"  rounded severity="success" aria-label="Search" tooltip="Exportar p/ Excel" />
-          
-          
-
+          <Button className="botao-inserir" icon="pi pi-plus" rounded severity="info" aria-label="User" tooltip="Importar Novos Licenciados" />
+          <Button className="botao-excel" icon="pi pi-file-excel" rounded severity="success" aria-label="Search" tooltip="Exportar p/ Excel" />
         </div>
       </div>
     );
@@ -84,7 +79,7 @@ const LicenciadosPage = () => {
     try {
       const updatedLicenciado = { ...licenciado, ativo: !licenciado.ativo };
 
-      const response = await fetch(`http://127.0.0.1:8000/api/licenciados/${licenciado.id}/`, {
+      const response = await fetch(`${BASE_URL}/licenciados/${licenciado.id}/`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -125,8 +120,6 @@ const LicenciadosPage = () => {
     );
   };
 
-
-
   const actionBodyTemplateInativar = (rowData) => {
     return (
       <div>
@@ -140,8 +133,6 @@ const LicenciadosPage = () => {
       </div>
     );
   };
-
-
 
   const openEditModal = (licenciado) => {
     setSelectedLicenciado(licenciado);
@@ -180,7 +171,7 @@ const LicenciadosPage = () => {
           <Column field="comissao" header="Comissão (%)" body={comissaoBodyTemplate} sortable filter />
           <Column field="ativo" header="Status" body={statusBodyTemplate} />
           <Column body={actionBodyTemplateEditar} header="Editar" />
-          <Column body={actionBodyTemplateInativar} header="Ativar/Inativar"  />
+          <Column body={actionBodyTemplateInativar} header="Ativar/Inativar" />
         </DataTable>
       </div>
 

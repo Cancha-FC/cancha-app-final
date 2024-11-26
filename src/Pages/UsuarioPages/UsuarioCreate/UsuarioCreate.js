@@ -19,6 +19,7 @@ const UserCreateForm = ({ onClose, onUserCreated }) => {
 
     const [errors, setErrors] = useState({});
     const toast = useRef(null);
+    const BASE_URL = process.env.REACT_APP_BACKEND_URL; // Obtém a URL base do .env
 
     const handleChange = (e) => {
         const { name, value, checked, type } = e.target;
@@ -37,7 +38,7 @@ const UserCreateForm = ({ onClose, onUserCreated }) => {
         }
 
         try {
-            const response = await fetch(`http://127.0.0.1:8000/api/users/`, {
+            const response = await fetch(`${BASE_URL}/users/`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -65,7 +66,7 @@ const UserCreateForm = ({ onClose, onUserCreated }) => {
     };
 
     return (
-        <form onSubmit={handleSubmit} >
+        <form onSubmit={handleSubmit}>
             <div className="usuario-form">
                 <div className="usuario-form-inputs">
                     <div>

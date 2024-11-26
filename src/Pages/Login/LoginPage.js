@@ -14,6 +14,8 @@ const LoginPage = () => {
   const [showForgotPassword, setShowForgotPassword] = useState(false);
   const [forgotPasswordMessage, setForgotPasswordMessage] = useState("");
 
+  const BASE_URL = process.env.REACT_APP_BACKEND_URL; // Base URL do backend
+
   useEffect(() => {
     const storedEmail = localStorage.getItem("email");
     const storedPassword = localStorage.getItem("password");
@@ -28,7 +30,7 @@ const LoginPage = () => {
 
   const handleLogin = async () => {
     try {
-      const response = await fetch("http://127.0.0.1:8000/api-token-auth/", {
+      const response = await fetch(`${BASE_URL}/api-token-auth/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -41,15 +43,12 @@ const LoginPage = () => {
         localStorage.setItem("token", data.token); // Armazena o token no localStorage
 
         // Obtém dados do usuário
-        const userResponse = await fetch(
-          "http://127.0.0.1:8000/api/auth/users/me/",
-          {
-            method: "GET",
-            headers: {
-              Authorization: `Token ${data.token}`,
-            },
-          }
-        );
+        const userResponse = await fetch(`${BASE_URL}/auth/users/me/`, {
+          method: "GET",
+          headers: {
+            Authorization: `Token ${data.token}`,
+          },
+        });
 
         if (userResponse.ok) {
           const userData = await userResponse.json();
@@ -94,16 +93,13 @@ const LoginPage = () => {
   // Função para enviar a solicitação de redefinição de senha
   const handleForgotPassword = async () => {
     try {
-      const response = await fetch(
-        "http://127.0.0.1:8000/api/auth/password/reset/",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ email: forgotPasswordEmail }),
-        }
-      );
+      const response = await fetch(`${BASE_URL}/api/auth/password/reset/`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email: forgotPasswordEmail }),
+      });
 
       if (response.ok) {
         setForgotPasswordMessage(

@@ -3,14 +3,12 @@ import { Dialog } from 'primereact/dialog';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Button } from 'primereact/button';
-import './UsuarioAdicionaLicenciado.css'
-
-
-// LicenciadoSelectModal.js
+import './UsuarioAdicionaLicenciado.css';
 
 const LicenciadoSelectModal = ({ visible, onHide, onConfirm, selectedUser }) => {
     const [licenciados, setLicenciados] = useState([]);
     const [selectedLicenciados, setSelectedLicenciados] = useState([]);
+    const BASE_URL = process.env.REACT_APP_BACKEND_URL; // Obtém a URL base do .env
 
     useEffect(() => {
         if (visible) {
@@ -20,7 +18,7 @@ const LicenciadoSelectModal = ({ visible, onHide, onConfirm, selectedUser }) => 
 
     const fetchLicenciados = async () => {
         try {
-            const response = await fetch('http://127.0.0.1:8000/api/licenciados/', {
+            const response = await fetch(`${BASE_URL}/licenciados/`, {
                 headers: {
                     'Authorization': `Token ${localStorage.getItem('token')}`,
                 },
@@ -56,7 +54,6 @@ const LicenciadoSelectModal = ({ visible, onHide, onConfirm, selectedUser }) => 
                 selectionMode="multiple"
             >
                 <Column selectionMode="multiple" headerStyle={{ width: '3em' }}></Column>
-                {/* <Column field="id" header="ID"></Column> */} 
                 <Column field="nome" header="Nome"></Column>
             </DataTable>
             <div className="select-licenciado-button">

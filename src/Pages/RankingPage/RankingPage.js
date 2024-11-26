@@ -2,112 +2,176 @@ import React, { useState, useEffect } from 'react';
 import { PrimeReactProvider } from 'primereact/api';
 import CardFooter from '../../Components/footer';
 import CardHeader from '../../Components/header';
-import FilterBar from '../../Components/FilterBar/FilterBar'; // Componente de filtro
+import FilterBar from '../../Components/FilterBar/FilterBar';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { SelectButton } from 'primereact/selectbutton';
 import './RankingPage.css';
 
 const RankingPage = () => {
+  const BASE_URL = process.env.REACT_APP_BACKEND_URL;
+
   const [licenciados, setLicenciados] = useState([]);
-  const [filters, setFilters] = useState({});
-  const options = ['Licenciado', 'Produto'];  // Opções do SelectButton
-  const [value, setValue] = useState(options[0]); // Estado inicial como "Licenciado"
+  const [filteredData, setFilteredData] = useState([]);
+  const [productRankingData, setProductRankingData] = useState([]); // Armazena dados do ranking de produtos
+  const [filters, setFilters] = useState({
+    startDate: null,
+    endDate: null,
+    codigoCategoria: '',
+  });
+  const [viewType, setViewType] = useState('Licenciado'); // Inicializa com o ranking de Licenciado
+  const options = ['Licenciado', 'Produto'];
 
-  // Função para buscar o ranking de licenciados
-  const fetchLicenciadosRanking = async () => {
+  useEffect(() => {
+    if (viewType === 'Licenciado') {
+      fetchLicenciados();
+    }
+  }, [viewType]);
+
+  const fetchLicenciados = async () => {
     try {
-      const params = new URLSearchParams();
-
-      if (filters.startDate) params.append('pedido_data__gte', filters.startDate);
-      if (filters.endDate) params.append('pedido_data__lte', filters.endDate);
-      if (filters.selectedLicensee) params.append('codigoCategoria', filters.selectedLicensee); // Filtro por licenciado
-
-      const response = await fetch(`http://127.0.0.1:8000/api/pedido-itens/?${params.toString()}`, {
+      const response = await fetch(`${BASE_URL}/auth/users/me/`, {
         headers: {
-          'Authorization': `Token ${localStorage.getItem('token')}`,
+          Authorization: `Token ${localStorage.getItem('token')}`,
         },
       });
-
       const data = await response.json();
-
-      // Processando os dados para calcular o ranking de licenciados
-      const ranking = processRanking(data);
-      setLicenciados(ranking);
+      setLicenciados(data.licenciados || []);
     } catch (error) {
-      console.error('Erro ao buscar o ranking de licenciados:', error);
+      console.error('Erro ao buscar licenciados:', error);
     }
   };
 
-  // Função para processar os dados de pedidos e calcular o ranking de licenciados
-  const processRanking = (pedidoItens) => {
+  const handleFilter = async (filterData) => {
+    setFilters(filterData);
+    if (viewType === 'Licenciado') {
+      await fetchLicenciadosRanking(filterData);
+    } else if (viewType === 'Produto') {
+      await fetchProductRanking(filterData);
+    }
+  };
+
+  const formatDate = (date) => {
+    if (date) {
+      const d = new Date(date);
+      return d.toISOString().split('T')[0]; // Retorna apenas a parte da data no formato YYYY-MM-DD
+    }
+    return null;
+  };
+
+  const fetchLicenciadosRanking = async (filterData) => {
+    try {
+      const params = new URLSearchParams();
+      if (filterData.startDate) params.append('pedido_data__gte', formatDate(filterData.startDate));
+      if (filterData.endDate) params.append('pedido_data__lte', formatDate(filterData.endDate));
+      if (filterData.codigoCategoria) params.append('codigoCategoria', filterData.codigoCategoria);
+
+      const response = await fetch(`${BASE_URL}/pedido-itens/?${params.toString()}`, {
+        headers: {
+          Authorization: `Token ${localStorage.getItem('token')}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`Erro na API: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log('Dados do ranking de licenciados retornados:', data);
+      setFilteredData(data);
+    } catch (error) {
+      console.error('Erro ao buscar dados do ranking de licenciados:', error);
+    }
+  };
+
+  const fetchProductRanking = async (filterData) => {
+    try {
+      const params = new URLSearchParams();
+      if (filterData.startDate) params.append('start_date', formatDate(filterData.startDate));
+      if (filterData.endDate) params.append('end_date', formatDate(filterData.endDate));
+      if (filterData.codigoCategoria) params.append('codigo_categoria', filterData.codigoCategoria);
+
+      const response = await fetch(`${BASE_URL}/ranking/?${params.toString()}`, {
+        headers: {
+          Authorization: `Token ${localStorage.getItem('token')}`,
+          Accept: 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`Erro na API: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log('Dados do ranking de produtos retornados:', data);
+      setProductRankingData(data);
+    } catch (error) {
+      console.error('Erro ao buscar dados do ranking de produtos:', error);
+    }
+  };
+
+  const processLicenciadosRanking = () => {
     const licenciadosMap = {};
 
-    pedidoItens.forEach((item) => {
-      const { codigoCategoria, quantidade, valor, codigoCategoria__nome } = item;
+    filteredData.forEach((item) => {
+      const { codigoCategoria, quantidade, valor } = item;
 
-      // Se o licenciado já existe no map, atualiza os valores
+      const licenciado = licenciados.find((l) => l.id === parseInt(codigoCategoria, 10));
+      if (!licenciado) return;
+
       if (!licenciadosMap[codigoCategoria]) {
         licenciadosMap[codigoCategoria] = {
-          nome: codigoCategoria__nome, // Nome do licenciado
+          nome: licenciado.nome,
           totalVolume: 0,
-          totalReceita: 0, // Adicionando a receita
+          totalReceita: 0,
         };
       }
 
-      // Acumulando o volume (quantidade de produtos vendidos) e a receita
       licenciadosMap[codigoCategoria].totalVolume += parseFloat(quantidade || 0);
       licenciadosMap[codigoCategoria].totalReceita += parseFloat(valor || 0);
     });
 
-    // Convertendo o map para um array e ordenando pelo volume de vendas
     return Object.values(licenciadosMap).sort((a, b) => b.totalVolume - a.totalVolume);
   };
 
-  // Filtro de dados
-  useEffect(() => {
-    fetchLicenciadosRanking();
-  }, [filters]);
-
-  const handleFilter = (filterData) => {
-    setFilters(filterData);
+  const processProdutosRanking = () => {
+    return productRankingData.map((item) => ({
+      nome: item.DescricaoResumida || `Produto ${item.idProdutoPai}`,
+      totalVolume: item.total_quantidade,
+      totalReceita: item.total_valor,
+    }));
   };
+
+  const rankingData =
+    viewType === 'Licenciado' ? processLicenciadosRanking() : processProdutosRanking();
 
   return (
     <PrimeReactProvider>
-      <div>
-        <CardHeader />
-      </div>
-
+      <CardHeader />
       <div className="ranking-top">
         <h1>Ranking</h1>
         <div className="ranking-top-seletor">
-          <SelectButton value={value} onChange={(e) => setValue(e.value)} options={options} />
+          <SelectButton value={viewType} onChange={(e) => setViewType(e.value)} options={options} />
         </div>
       </div>
 
-      {/* Componente FilterBar */}
       <FilterBar onFilter={handleFilter} />
 
-      {/* Renderização condicional das tabelas */}
       <div className="TabRanking">
-        {value === 'Licenciado' && (
-          <DataTable value={licenciados} stripedRows tableStyle={{ minWidth: '50rem' }}>
-            <Column field="nome" header="Licenciado" sortable filter />
-            <Column field="totalVolume" header="Volume de Vendas" sortable filter />
-            <Column field="totalReceita" header="Receita" sortable filter />
-          </DataTable>
-        )}
-
-        {value === 'Produto' && (
-          // Aqui você pode adicionar a lógica do ranking de produtos, se necessário
-          <div>Ranking de Produtos ainda não implementado.</div>
-        )}
+        <DataTable value={rankingData} stripedRows paginator rows={10} tableStyle={{ minWidth: '50rem' }}>
+          <Column field="nome" header={viewType === 'Licenciado' ? 'Licenciado' : 'Produto'} sortable />
+          <Column field="totalVolume" header="Volume de Vendas" sortable />
+          <Column
+            field="totalReceita"
+            header="Receita"
+            sortable
+            body={(rowData) =>
+              new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(rowData.totalReceita)
+            }
+          />
+        </DataTable>
       </div>
-
-      <div>
-        <CardFooter />
-      </div>
+      <CardFooter />
     </PrimeReactProvider>
   );
 };

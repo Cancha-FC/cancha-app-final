@@ -26,6 +26,7 @@ const UsuariosPage = () => {
     const [modalVisible, setModalVisible] = useState(false);
     const [createUserVisible, setCreateUserVisible] = useState(false);
     const toast = useRef(null);
+    const BASE_URL = process.env.REACT_APP_BACKEND_URL; // Obtém a URL base do .env
 
     useEffect(() => {
         fetchUsers();
@@ -41,24 +42,24 @@ const UsuariosPage = () => {
     };
 
     const fetchUsers = async () => {
-      try {
-          const response = await fetch('http://127.0.0.1:8000/api/users/', {
-              headers: {
-                  'Authorization': `Token ${localStorage.getItem('token')}`,
-              },
-          });
-  
-          if (!response.ok) {
-              throw new Error(`HTTP error! status: ${response.status}`);
-          }
-  
-          const data = await response.json();
-          setUsers(data.results || data); // Ajuste conforme a estrutura da resposta
-      } catch (error) {
-          console.error('Erro ao buscar usuários:', error);
-          toast.current.show({ severity: 'error', summary: 'Erro', detail: 'Não foi possível carregar os usuários.' });
-      }
-  };
+        try {
+            const response = await fetch(`${BASE_URL}/users/`, {
+                headers: {
+                    'Authorization': `Token ${localStorage.getItem('token')}`,
+                },
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const data = await response.json();
+            setUsers(data.results || data); // Ajuste conforme a estrutura da resposta
+        } catch (error) {
+            console.error('Erro ao buscar usuários:', error);
+            toast.current.show({ severity: 'error', summary: 'Erro', detail: 'Não foi possível carregar os usuários.' });
+        }
+    };
 
     const openEditModal = (user) => {
         setSelectedUser(user);
@@ -66,43 +67,40 @@ const UsuariosPage = () => {
     };
 
     const openLicenciadoModal = (user) => {
-      setSelectedUser(user);
-      setModalVisible(true);
-  };
+        setSelectedUser(user);
+        setModalVisible(true);
+    };
 
     const closeLicenciadoModal = () => {
         setModalVisible(false);
     };
 
-
     const handleLicenciadoConfirm = async (selectedLicenciados) => {
-      const licenciadosIds = selectedLicenciados.map(licenciado => licenciado.id);
-  
-      try {
-          const response = await fetch(`http://127.0.0.1:8000/api/auth/users/${selectedUser.id}/link-licenciados/`, {
-              method: 'POST',
-              headers: {
-                  'Content-Type': 'application/json',
-                  'Authorization': `Token ${localStorage.getItem('token')}`,
-              },
-              body: JSON.stringify({ licenciados_ids: licenciadosIds }),
-          });
-  
-          if (response.ok) {
-              // Sucesso
-              toast.current.show({ severity: 'success', summary: 'Sucesso', detail: 'Licenciados atualizados com sucesso' });
-              fetchUsers(); // Atualiza a lista de usuários
-          } else {
-              // Tratar o erro
-              const errorData = await response.json();
-              console.error('Erro ao atualizar licenciados:', errorData);
-              toast.current.show({ severity: 'error', summary: 'Erro', detail: 'Falha ao atualizar licenciados.' });
-          }
-      } catch (error) {
-          console.error('Erro ao atualizar licenciados:', error);
-          toast.current.show({ severity: 'error', summary: 'Erro', detail: 'Falha ao atualizar licenciados.' });
-      }
-  };
+        const licenciadosIds = selectedLicenciados.map(licenciado => licenciado.id);
+
+        try {
+            const response = await fetch(`${BASE_URL}/auth/users/${selectedUser.id}/link-licenciados/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Token ${localStorage.getItem('token')}`,
+                },
+                body: JSON.stringify({ licenciados_ids: licenciadosIds }),
+            });
+
+            if (response.ok) {
+                toast.current.show({ severity: 'success', summary: 'Sucesso', detail: 'Licenciados atualizados com sucesso' });
+                fetchUsers(); // Atualiza a lista de usuários
+            } else {
+                const errorData = await response.json();
+                console.error('Erro ao atualizar licenciados:', errorData);
+                toast.current.show({ severity: 'error', summary: 'Erro', detail: 'Falha ao atualizar licenciados.' });
+            }
+        } catch (error) {
+            console.error('Erro ao atualizar licenciados:', error);
+            toast.current.show({ severity: 'error', summary: 'Erro', detail: 'Falha ao atualizar licenciados.' });
+        }
+    };
 
     const onGlobalFilterChange = (e) => {
         const value = e.target.value;
@@ -116,9 +114,8 @@ const UsuariosPage = () => {
         return (
             <div className="header-usuario">
                 <div className="header-usuario-titulo">
-                <h3>Cadastro de Usuários</h3>
+                    <h3>Cadastro de Usuários</h3>
                 </div>
-                
                 <div className="header-usuario-buscador">
                     <span className="input-icon-container">
                         <i className="pi pi-search input-icon" />
@@ -126,10 +123,9 @@ const UsuariosPage = () => {
                     </span>
                     {isStaff() && (
                         <Button className="botao-inserir" icon="pi pi-plus" rounded severity="info" aria-label="User" onClick={() => setCreateUserVisible(true)} />
-
                     )}
                     {isStaff() && (
-                        <Button className="botao-excel" icon="pi pi-file-excel"  rounded severity="success" aria-label="Search" />
+                        <Button className="botao-excel" icon="pi pi-file-excel" rounded severity="success" aria-label="Search" />
                     )}
                 </div>
             </div>
@@ -140,16 +136,6 @@ const UsuariosPage = () => {
         return <Tag value={rowData.is_active ? 'Ativo' : 'Inativo'} severity={rowData.is_active ? 'success' : 'danger'} />;
     };
 
-    // const licenciadosBodyTemplate = (rowData) => {
-    //     return (
-    //         <ul>
-    //             {rowData.licenciados && rowData.licenciados.map((licenciado) => (
-    //                 <li key={licenciado.id}>{licenciado.nome}</li>
-    //             ))}
-    //         </ul>
-    //     );
-    // };
-
     const header = renderHeader();
 
     return (
@@ -157,8 +143,7 @@ const UsuariosPage = () => {
             <div>
                 <CardHeader />
             </div>
-
-            <div className="">
+            <div>
                 <DataTable
                     value={users}
                     paginator
@@ -175,51 +160,44 @@ const UsuariosPage = () => {
                     <Column field="email" header="Email" sortable filter />
                     <Column field="first_name" header="Nome" sortable filter />
                     <Column field="last_name" header="Sobrenome" sortable filter />
-                    {/* <Column field="licenciados" header="Licenciados" body={licenciadosBodyTemplate} /> */}
                     <Column field="is_active" header="Status" body={statusBodyTemplate} />
-                    <Column header="Licenciados"
+                    <Column
+                        header="Licenciados"
                         body={(rowData) => (
-                            <div style={{ display: 'flex', justifyContent: 'center' }}>
-                                <Button 
-                                    icon="pi pi-briefcase"
-                                    style={{ width: '40px', height: '40px' }}
-                                    bodyStyle={{ textAlign: 'center' }}
-                                    onClick={() => openLicenciadoModal(rowData)}
-                                />
-                            </div>
+                            <Button
+                                icon="pi pi-briefcase"
+                                style={{ width: '40px', height: '40px' }}
+                                onClick={() => openLicenciadoModal(rowData)}
+                            />
                         )}
                     />
-                    <Column header="Editar" body={(rowData) => 
-                        <Button 
-                            icon="pi pi-pen-to-square" 
-                            style={{ width: '40px', height: '40px' }}
-                            onClick={() => openEditModal(rowData)} 
-                        />} 
+                    <Column
+                        header="Editar"
+                        body={(rowData) => (
+                            <Button
+                                icon="pi pi-pen-to-square"
+                                style={{ width: '40px', height: '40px' }}
+                                onClick={() => openEditModal(rowData)}
+                            />
+                        )}
                     />
                 </DataTable>
             </div>
-
             <div>
-                <br></br>
-                <br></br>
                 <CardFooter />
             </div>
-
             <Dialog header="Editar Usuário" visible={visible} onHide={() => setVisible(false)}>
                 <UserEditForm user={selectedUser} onClose={() => setVisible(false)} />
             </Dialog>
-
             <Dialog header="Criar Usuário" visible={createUserVisible} onHide={() => setCreateUserVisible(false)}>
                 <UserCreateForm onClose={() => setCreateUserVisible(false)} onUserCreated={fetchUsers} />
             </Dialog>
-
             <LicenciadoSelectModal
-    visible={modalVisible}
-    onHide={closeLicenciadoModal}
-    onConfirm={handleLicenciadoConfirm}
-    selectedUser={selectedUser}
-/>
-
+                visible={modalVisible}
+                onHide={closeLicenciadoModal}
+                onConfirm={handleLicenciadoConfirm}
+                selectedUser={selectedUser}
+            />
             <Toast ref={toast} />
         </PrimeReactProvider>
     );

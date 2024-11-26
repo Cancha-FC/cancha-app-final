@@ -21,6 +21,8 @@ addLocale('pt-BR', {
 });
 
 const FilterBar = ({ onFilter }) => {
+    const BASE_URL = process.env.REACT_APP_BACKEND_URL; // Obtém a URL base do .env
+
     const [startDate, setStartDate] = useState(null);
     const [endDate, setEndDate] = useState(null);
     const [selectedLicensees, setSelectedLicensees] = useState([]); // IDs dos licenciados selecionados
@@ -31,24 +33,42 @@ const FilterBar = ({ onFilter }) => {
     const [allSelected, setAllSelected] = useState(false); // Controle da seleção de todos os licenciados
 
     useEffect(() => {
-        const fetchLicenciados = async () => {
+        const fetchUserData = async () => {
             try {
-                const response = await fetch('http://127.0.0.1:8000/api/licenciados/', {
+                const response = await fetch(`${BASE_URL}/auth/users/me/`, {
                     headers: {
                         'Authorization': `Token ${localStorage.getItem('token')}`,
                     },
                 });
                 const data = await response.json();
-                setLicensees(data);
+                const licenciados = data.licenciados || [];
+                setLicensees(licenciados);
+
+                // Seleciona todos os IDs de licenciados por padrão
+                const licenseeIds = licenciados.map((licenciado) => licenciado.id);
+                setSelectedLicensees(licenseeIds);
+                setAllSelected(true);
             } catch (error) {
-                console.error('Erro ao buscar licenciados:', error);
+                console.error('Erro ao buscar licenciados vinculados ao usuário:', error);
             }
         };
 
-        fetchLicenciados();
-    }, []);
+        // Configura a data inicial para o dia anterior e busca licenciados
+        const yesterday = new Date();
+        yesterday.setDate(yesterday.getDate() - 1);
+        setStartDate(yesterday);
+        setEndDate(yesterday);
 
-    // Função para controlar a seleção de licenciados
+        fetchUserData();
+    }, [BASE_URL]);
+
+    useEffect(() => {
+        // Dispara a busca inicial automaticamente
+        if (startDate && endDate && selectedLicensees.length > 0) {
+            handleSearch();
+        }
+    }, [startDate, endDate, selectedLicensees]);
+
     const onLicenseeSelect = (e, licenciado) => {
         const selected = [...selectedLicensees];
         if (e.checked) {
@@ -60,12 +80,11 @@ const FilterBar = ({ onFilter }) => {
         setSelectedLicensees(selected);
     };
 
-    // Função para selecionar todos os licenciados filtrados
     const selectAllLicensees = (e) => {
         if (e.checked) {
             const filteredLicensees = licensees
                 .filter((licenciado) => licenciado.nome.toLowerCase().includes(searchTerm.toLowerCase()))
-                .map((licenciado) => licenciado.id); // Seleciona apenas os IDs
+                .map((licenciado) => licenciado.id);
             setSelectedLicensees(filteredLicensees);
             setAllSelected(true);
         } else {
@@ -75,14 +94,11 @@ const FilterBar = ({ onFilter }) => {
     };
 
     const handleSearch = () => {
-        // Converte os IDs dos licenciados selecionados em uma string separada por vírgulas
         const codigoCategoria = selectedLicensees.join(',');
-    
-        // Envia os filtros, incluindo o `codigoCategoria`
         onFilter({
             startDate,
             endDate,
-            codigoCategoria, // IDs dos licenciados como `codigoCategoria`
+            codigoCategoria,
         });
     };
 
@@ -92,7 +108,6 @@ const FilterBar = ({ onFilter }) => {
 
     const getSelectedLicenseesLabel = () => {
         if (selectedLicensees.length === 1) {
-            // Exibe o nome do primeiro licenciado selecionado
             const licenciado = licensees.find((l) => l.id === selectedLicensees[0]);
             return licenciado ? licenciado.nome : "Selecionar Licenciados";
         } else if (selectedLicensees.length > 1) {
@@ -114,18 +129,14 @@ const FilterBar = ({ onFilter }) => {
 
     return (
         <div className="filter-bar">
-            {/* Botão para abrir o modal de datas */}
             <Button className="button-select" label={getPeriodLabel()} icon="pi pi-calendar" onClick={() => setDateModalVisible(true)} />
 
-            {/* Botão para abrir o modal de seleção de licenciados */}
             <div className="dropdown-licenciados">
                 <Button className="button-select" label={getSelectedLicenseesLabel()} icon="pi pi-users" onClick={() => setModalVisible(true)} />
             </div>
 
-            {/* Botão de busca */}
             <Button label="Buscar" icon="pi pi-search" onClick={handleSearch} />
 
-            {/* Modal para selecionar o período de datas */}
             <Dialog className="popup-seleciona-data" header="Período de consulta" visible={dateModalVisible} onHide={() => setDateModalVisible(false)}>
                 <div className="popup-seleciona-data-datas">
                     <div className="input-wrapper">
@@ -160,7 +171,6 @@ const FilterBar = ({ onFilter }) => {
                 <Button label="Confirmar" icon="pi pi-check" onClick={() => setDateModalVisible(false)} className="confirm-button" />
             </Dialog>
 
-            {/* Modal para selecionar os licenciados */}
             <Dialog header="Seleção de Licenciados" visible={modalVisible} onHide={() => setModalVisible(false)} style={{ width: '50vw' }}>
                 <span className="p-input-icon-left" style={{ marginBottom: '10px', width: '100%' }}>
                     <i className="pi pi-search" />
