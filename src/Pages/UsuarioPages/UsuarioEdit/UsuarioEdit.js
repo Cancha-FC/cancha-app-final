@@ -13,12 +13,13 @@ const UserEditForm = ({ user, onClose }) => {
         first_name: user.first_name || '',
         last_name: user.last_name || '',
         is_active: user.is_active || false,
-        is_staff: user.is_staff || false,  // Adicionado o campo is_staff
-        password: '',  // Deixe em branco para não alterar a senha
+        is_staff: user.is_staff || false, // Adicionado o campo is_staff
+        password: '', // Deixe em branco para não alterar a senha
     });
 
     const [errors, setErrors] = useState({});
     const toast = useRef(null);
+    const BASE_URL = process.env.REACT_APP_BACKEND_URL; // Obtém a URL base do .env
 
     const handleChange = (e) => {
         const { name, value, checked, type } = e.target;
@@ -38,7 +39,7 @@ const UserEditForm = ({ user, onClose }) => {
         }
 
         try {
-            const response = await fetch(`http://127.0.0.1:8000/api/auth/users/${user.id}/`, {
+            const response = await fetch(`${BASE_URL}/users/${user.id}/`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -108,9 +109,8 @@ const UserEditForm = ({ user, onClose }) => {
             {/* Botões */}
             <div className="usuario-form-buttom">
                 <Button type="button" label="Cancelar" severity="danger" onClick={onClose} />
-                <Button type="submit" label="Salvar"  />
+                <Button type="submit" label="Salvar" />
             </div>
-
 
             <Toast ref={toast} />
         </form>
