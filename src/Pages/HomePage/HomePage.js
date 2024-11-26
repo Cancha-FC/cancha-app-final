@@ -7,7 +7,7 @@ import FilterBar from '../../Components/FilterBar/FilterBar';
 import './HomePage.css'; // Estilos para a página
 
 const HomePage = () => {
-  const BASE_URL = process.env.REACT_APP_BACKEND_URL;
+  const BASE_URL = process.env.REACT_APP_BACKEND_URL; // Obtém a URL base do .env
 
   const [filters, setFilters] = useState({
     startDate: new Date().toISOString().split('T')[0],
@@ -17,7 +17,8 @@ const HomePage = () => {
 
   const [licenciados, setLicenciados] = useState([]);
   const [vendasPorDia, setVendasPorDia] = useState(null);
-  const [rankingData, setRankingData] = useState(null);
+  const [vendasPorProduto, setVendasPorProduto] = useState(null);
+  const [rankingData, setRankingData] = useState(null); // Dados da API de ranking
   const [cardData, setCardData] = useState({
     pedidos: 0,
     volume: 0,
@@ -30,14 +31,6 @@ const HomePage = () => {
   useEffect(() => {
     fetchLicenciados();
   }, []);
-
-  // Função para validar se a data está no intervalo
-  const isDateInRange = (date) => {
-    const startDate = new Date(filters.startDate);
-    const endDate = new Date(filters.endDate);
-    const currentDate = new Date(date);
-    return currentDate >= startDate && currentDate <= endDate;
-  };
 
   const fetchLicenciados = async () => {
     try {
@@ -60,7 +53,7 @@ const HomePage = () => {
     }));
 
     await fetchData(filterData);
-    await fetchRanking(filterData);
+    await fetchRanking(filterData); // Busca os dados de ranking
   };
 
   const formatDate = (date) => {
@@ -90,11 +83,8 @@ const HomePage = () => {
         throw new Error('Dados inválidos retornados da API');
       }
 
-      // Filtra os itens para garantir que estão no intervalo correto
-      const filteredItens = dataItens.filter((item) => isDateInRange(item.pedido_data));
-
-      processCardData(filteredItens);
-      processGraphData(filteredItens);
+      processCardData(dataItens);
+      processGraphData(dataItens);
     } catch (error) {
       console.error('Erro ao buscar dados:', error);
     } finally {
@@ -116,11 +106,7 @@ const HomePage = () => {
       });
 
       const data = await response.json();
-
-      // Filtra os itens do ranking para garantir que estão no intervalo correto
-      const filteredRanking = data.filter((item) => isDateInRange(item.pedido_data));
-
-      setRankingData(filteredRanking);
+      setRankingData(data); // Armazena os dados do ranking
     } catch (error) {
       console.error('Erro ao buscar dados de ranking:', error);
     }
@@ -174,7 +160,7 @@ const HomePage = () => {
   const processRankingGraph = () => {
     if (!rankingData) return null;
 
-    const topProdutos = rankingData.slice(0, 20);
+    const topProdutos = rankingData.slice(0, 20); // Top 20 produtos
     return {
       labels: topProdutos.map((item) => item.DescricaoResumida || `Produto ${item.idProdutoPai}`),
       datasets: [

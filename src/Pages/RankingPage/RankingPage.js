@@ -13,13 +13,13 @@ const RankingPage = () => {
 
   const [licenciados, setLicenciados] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
-  const [productRankingData, setProductRankingData] = useState([]); // Armazena dados do ranking de produtos
+  const [productRankingData, setProductRankingData] = useState([]); // Estado para armazenar dados do ranking de produtos
   const [filters, setFilters] = useState({
     startDate: null,
     endDate: null,
     codigoCategoria: '',
   });
-  const [viewType, setViewType] = useState('Licenciado'); // Inicializa com o ranking de Licenciado
+  const [viewType, setViewType] = useState('Licenciado'); // Alterna entre Licenciado e Produto
   const options = ['Licenciado', 'Produto'];
 
   useEffect(() => {
@@ -35,6 +35,9 @@ const RankingPage = () => {
           Authorization: `Token ${localStorage.getItem('token')}`,
         },
       });
+      if (!response.ok) {
+        throw new Error(`Erro ao buscar licenciados: ${response.status}`);
+      }
       const data = await response.json();
       setLicenciados(data.licenciados || []);
     } catch (error) {
