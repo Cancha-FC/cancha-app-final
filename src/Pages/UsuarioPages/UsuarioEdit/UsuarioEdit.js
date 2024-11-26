@@ -39,7 +39,7 @@ const UserEditForm = ({ user, onClose }) => {
         }
 
         try {
-            const response = await fetch(`${BASE_URL}/users/${user.id}/`, {
+            const response = await fetch(`${BASE_URL}/auth/users/${user.id}/`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
