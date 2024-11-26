@@ -1,9 +1,13 @@
-const js = require("@eslint/js");
-const globals = require("globals");
-const pluginReact = require("eslint-plugin-react");
+import js from "@eslint/js";
+import pkg from "eslint-plugin-react";
+import globals from "globals";
 
-module.exports = [
+// Ajustando a importação para lidar com o CommonJS
+const { configs: reactConfigs } = pkg;
+
+export default [
   js.configs.recommended,
+  reactConfigs.recommended,
   {
     files: ["**/*.js", "**/*.jsx"],
     languageOptions: {
@@ -13,11 +17,11 @@ module.exports = [
       },
     },
     plugins: {
-      react: pluginReact,
+      react: reactConfigs,
     },
     rules: {
       "no-unused-vars": "warn",
-      "react/react-in-jsx-scope": "off",
+      "react/react-in-jsx-scope": "off", // Necessário para React 17+
     },
   },
 ];
