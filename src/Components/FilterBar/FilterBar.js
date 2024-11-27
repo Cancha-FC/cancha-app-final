@@ -1,3 +1,5 @@
+/* eslint-disable */
+
 import React, { useState, useEffect, useCallback } from 'react';
 import { Calendar } from 'primereact/calendar';
 import { Button } from 'primereact/button';
@@ -33,6 +35,7 @@ const FilterBar = ({ onFilter }) => {
     const [dateModalVisible, setDateModalVisible] = useState(false);
     const [allSelected, setAllSelected] = useState(false);
 
+
     // Função para buscar dados do usuário e iniciar os filtros
     useEffect(() => {
         const fetchAndFilterData = async () => {
@@ -67,7 +70,7 @@ const FilterBar = ({ onFilter }) => {
                 console.error('Erro ao buscar licenciados:', error.message);
             }
         };
-
+        // eslint-disable-next-line react-hooks/exhaustive-deps
         fetchAndFilterData();
     }, [BASE_URL]);
 

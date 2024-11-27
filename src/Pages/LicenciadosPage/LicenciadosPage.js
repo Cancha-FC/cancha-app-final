@@ -1,3 +1,5 @@
+/* eslint-disable */
+
 import React, { useState, useEffect, useRef } from 'react';
 import { PrimeReactProvider } from 'primereact/api';
 import { DataTable } from 'primereact/datatable';

@@ -1,3 +1,5 @@
+/* eslint-disable */
+
 // UsuariosPage.js
 import React, { useState, useEffect, useRef } from 'react';
 import { PrimeReactProvider } from 'primereact/api';

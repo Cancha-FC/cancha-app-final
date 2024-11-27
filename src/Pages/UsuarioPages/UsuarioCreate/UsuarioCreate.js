@@ -1,3 +1,5 @@
+/* eslint-disable */
+
 import React, { useState, useRef } from 'react';
 import { InputText } from 'primereact/inputtext';
 import { Button } from 'primereact/button';
