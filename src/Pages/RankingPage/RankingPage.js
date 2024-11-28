@@ -13,9 +13,8 @@ import './RankingPage.css';
 const RankingPage = () => {
   const BASE_URL = process.env.REACT_APP_BACKEND_URL;
 
-  const [licenciados, setLicenciados] = useState([]);
-  const [filteredData, setFilteredData] = useState([]);
-  const [productRankingData, setProductRankingData] = useState([]); // Estado para armazenar dados do ranking de produtos
+  const [productRankingData, setProductRankingData] = useState([]);
+  const [licenciadoRankingData, setLicenciadoRankingData] = useState([]); // Novo estado para ranking de licenciados
   const [filters, setFilters] = useState({
     startDate: null,
     endDate: null,
@@ -26,31 +25,16 @@ const RankingPage = () => {
 
   useEffect(() => {
     if (viewType === 'Licenciado') {
-      fetchLicenciados();
+      fetchLicenciadoRanking(filters);
+    } else if (viewType === 'Produto') {
+      fetchProductRanking(filters);
     }
-  }, [viewType]);
-
-  const fetchLicenciados = async () => {
-    try {
-      const response = await fetch(`${BASE_URL}/auth/users/me/`, {
-        headers: {
-          Authorization: `Token ${localStorage.getItem('token')}`,
-        },
-      });
-      if (!response.ok) {
-        throw new Error(`Erro ao buscar licenciados: ${response.status}`);
-      }
-      const data = await response.json();
-      setLicenciados(data.licenciados || []);
-    } catch (error) {
-      console.error('Erro ao buscar licenciados:', error);
-    }
-  };
+  }, [viewType, filters]);
 
   const handleFilter = async (filterData) => {
     setFilters(filterData);
     if (viewType === 'Licenciado') {
-      await fetchLicenciadosRanking(filterData);
+      await fetchLicenciadoRanking(filterData);
     } else if (viewType === 'Produto') {
       await fetchProductRanking(filterData);
     }
@@ -59,21 +43,22 @@ const RankingPage = () => {
   const formatDate = (date) => {
     if (date) {
       const d = new Date(date);
-      return d.toISOString().split('T')[0]; // Retorna apenas a parte da data no formato YYYY-MM-DD
+      return d.toISOString().split('T')[0];
     }
     return null;
   };
 
-  const fetchLicenciadosRanking = async (filterData) => {
+  const fetchLicenciadoRanking = async (filterData) => {
     try {
       const params = new URLSearchParams();
-      if (filterData.startDate) params.append('pedido_data__gte', formatDate(filterData.startDate));
-      if (filterData.endDate) params.append('pedido_data__lte', formatDate(filterData.endDate));
-      if (filterData.codigoCategoria) params.append('codigoCategoria', filterData.codigoCategoria);
+      if (filterData.startDate) params.append('start_date', formatDate(filterData.startDate));
+      if (filterData.endDate) params.append('end_date', formatDate(filterData.endDate));
+      if (filterData.codigoCategoria) params.append('codigo_categoria', filterData.codigoCategoria);
 
-      const response = await fetch(`${BASE_URL}/pedido-itens/?${params.toString()}`, {
+      const response = await fetch(`${BASE_URL}/licenciado-ranking/?${params.toString()}`, {
         headers: {
           Authorization: `Token ${localStorage.getItem('token')}`,
+          Accept: 'application/json',
         },
       });
 
@@ -83,7 +68,7 @@ const RankingPage = () => {
 
       const data = await response.json();
       console.log('Dados do ranking de licenciados retornados:', data);
-      setFilteredData(data);
+      setLicenciadoRankingData(data);
     } catch (error) {
       console.error('Erro ao buscar dados do ranking de licenciados:', error);
     }
@@ -116,27 +101,11 @@ const RankingPage = () => {
   };
 
   const processLicenciadosRanking = () => {
-    const licenciadosMap = {};
-
-    filteredData.forEach((item) => {
-      const { codigoCategoria, quantidade, valor } = item;
-
-      const licenciado = licenciados.find((l) => l.id === parseInt(codigoCategoria, 10));
-      if (!licenciado) return;
-
-      if (!licenciadosMap[codigoCategoria]) {
-        licenciadosMap[codigoCategoria] = {
-          nome: licenciado.nome,
-          totalVolume: 0,
-          totalReceita: 0,
-        };
-      }
-
-      licenciadosMap[codigoCategoria].totalVolume += parseFloat(quantidade || 0);
-      licenciadosMap[codigoCategoria].totalReceita += parseFloat(valor || 0);
-    });
-
-    return Object.values(licenciadosMap).sort((a, b) => b.totalVolume - a.totalVolume);
+    return licenciadoRankingData.map((item) => ({
+      nome: item.licenciado_nome, // Corrigido para usar o campo retornado pela API
+      totalVolume: item.total_quantidade,
+      totalReceita: item.total_receita,
+    }));
   };
 
   const processProdutosRanking = () => {

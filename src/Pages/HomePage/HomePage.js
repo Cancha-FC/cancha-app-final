@@ -1,26 +1,20 @@
-/* eslint-disable */
-
 import React, { useState, useEffect } from 'react';
 import { PrimeReactProvider } from 'primereact/api';
 import { Chart } from 'primereact/chart';
 import CardFooter from '../../Components/footer';
 import CardHeader from '../../Components/header';
 import FilterBar from '../../Components/FilterBar/FilterBar';
-import './HomePage.css'; // Estilos para a página
+import './HomePage.css';
 
 const HomePage = () => {
-  const BASE_URL = process.env.REACT_APP_BACKEND_URL; // Obtém a URL base do .env
+  const BASE_URL = process.env.REACT_APP_BACKEND_URL;
 
   const [filters, setFilters] = useState({
     startDate: new Date().toISOString().split('T')[0],
     endDate: new Date().toISOString().split('T')[0],
-    codigoCategoria: '', // ID do licenciado para cálculo da comissão
+    codigoCategoria: '', // ID do licenciado
   });
 
-  const [licenciados, setLicenciados] = useState([]);
-  const [vendasPorDia, setVendasPorDia] = useState(null);
-  const [vendasPorProduto, setVendasPorProduto] = useState(null);
-  const [rankingData, setRankingData] = useState(null); // Dados da API de ranking
   const [cardData, setCardData] = useState({
     pedidos: 0,
     volume: 0,
@@ -28,34 +22,23 @@ const HomePage = () => {
     comissao: 0,
   });
 
+  const [receitaDiaria, setReceitaDiaria] = useState(null);
+  const [rankingProdutos, setRankingProdutos] = useState(null); // Dados do ranking de produtos
+
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    fetchLicenciados();
+    fetchData(filters);
+    fetchRanking(filters); // Busca o ranking ao carregar
   }, []);
-
-  const fetchLicenciados = async () => {
-    try {
-      const response = await fetch(`${BASE_URL}/auth/users/me/`, {
-        headers: {
-          Authorization: `Token ${localStorage.getItem('token')}`,
-        },
-      });
-      const data = await response.json();
-      setLicenciados(data.licenciados || []);
-    } catch (error) {
-      console.error('Erro ao buscar licenciados:', error);
-    }
-  };
 
   const handleFilter = async (filterData) => {
     setFilters((prevFilters) => ({
       ...prevFilters,
       ...filterData,
     }));
-
     await fetchData(filterData);
-    await fetchRanking(filterData); // Busca os dados de ranking
+    await fetchRanking(filterData); // Atualiza o ranking ao aplicar filtros
   };
 
   const formatDate = (date) => {
@@ -71,22 +54,27 @@ const HomePage = () => {
       setLoading(true);
 
       const params = new URLSearchParams();
-      if (filterData.startDate) params.append('pedido_data__gte', formatDate(filterData.startDate));
-      if (filterData.endDate) params.append('pedido_data__lte', formatDate(filterData.endDate));
-      if (filterData.codigoCategoria) params.append('codigoCategoria', filterData.codigoCategoria);
+      if (filterData.startDate) params.append('start_date', formatDate(filterData.startDate));
+      if (filterData.endDate) params.append('end_date', formatDate(filterData.endDate));
+      if (filterData.codigoCategoria) params.append('codigo_categoria', filterData.codigoCategoria);
 
-      const responseItens = await fetch(`${BASE_URL}/pedido-itens/?${params.toString()}`, {
-        headers: { Authorization: `Token ${localStorage.getItem('token')}` },
+      // Fetch total metrics
+      const metricsResponse = await fetch(`${BASE_URL}/total-metrics/?${params.toString()}`, {
+        headers: {
+          Authorization: `Token ${localStorage.getItem('token')}`,
+        },
       });
+      const metricsData = await metricsResponse.json();
+      processCardData(metricsData);
 
-      const dataItens = await responseItens.json();
-
-      if (!Array.isArray(dataItens)) {
-        throw new Error('Dados inválidos retornados da API');
-      }
-
-      processCardData(dataItens);
-      processGraphData(dataItens);
+      // Fetch receita diária
+      const receitaResponse = await fetch(`${BASE_URL}/receita-diaria/?${params.toString()}`, {
+        headers: {
+          Authorization: `Token ${localStorage.getItem('token')}`,
+        },
+      });
+      const receitaData = await receitaResponse.json();
+      processReceitaDiaria(receitaData);
     } catch (error) {
       console.error('Erro ao buscar dados:', error);
     } finally {
@@ -100,70 +88,47 @@ const HomePage = () => {
       if (filterData.startDate) params.append('start_date', formatDate(filterData.startDate));
       if (filterData.endDate) params.append('end_date', formatDate(filterData.endDate));
       if (filterData.codigoCategoria) params.append('codigo_categoria', filterData.codigoCategoria);
-
+  
       const response = await fetch(`${BASE_URL}/ranking/?${params.toString()}`, {
         headers: {
           Authorization: `Token ${localStorage.getItem('token')}`,
         },
       });
-
+  
       const data = await response.json();
-      setRankingData(data); // Armazena os dados do ranking
+      processRankingData(data); // Atualiza os dados de ranking
     } catch (error) {
-      console.error('Erro ao buscar dados de ranking:', error);
+      console.error('Erro ao buscar ranking de produtos:', error);
     }
   };
 
-  const processCardData = (itens) => {
-    const pedidosUnicos = new Set(itens.map((item) => item.idPedido));
-    const totalVolume = itens.reduce((total, item) => total + parseFloat(item.quantidade || 0), 0);
-    const totalVenda = itens.reduce((total, item) => total + parseFloat(item.valor || 0), 0);
-    const totalComissao = itens.reduce((total, item) => {
-      const licenciado = licenciados.find((l) => l.id === parseInt(item.codigoCategoria, 10));
-      if (!licenciado) return total;
-
-      const comissaoPercentual = parseFloat(licenciado.comissao) / 100;
-      return total + parseFloat(item.valor || 0) * comissaoPercentual;
-    }, 0);
-
+  const processCardData = (data) => {
+    const { total_pedidos, total_quantidade, total_valor, total_comissao } = data;
     setCardData({
-      pedidos: pedidosUnicos.size,
-      volume: totalVolume,
-      venda: totalVenda,
-      comissao: totalComissao,
+      pedidos: total_pedidos || 0,
+      volume: total_quantidade || 0,
+      venda: total_valor || 0,
+      comissao: total_comissao || 0,
     });
   };
 
-  const processGraphData = (itens) => {
-    const vendasPorDiaData = itens.reduce((acc, item) => {
-      const dia = new Date(item.pedido_data).toISOString().split('T')[0];
-      acc[dia] = (acc[dia] || 0) + parseFloat(item.valor || 0);
-      return acc;
-    }, {});
-
-    const vendasPorDiaOrdenadas = Object.entries(vendasPorDiaData).sort(
-      ([dataA], [dataB]) => new Date(dataA) - new Date(dataB)
-    );
-
-    setVendasPorDia({
-      labels: vendasPorDiaOrdenadas.map(([data]) =>
-        new Date(data).toLocaleDateString('pt-BR')
-      ),
+  const processReceitaDiaria = (data) => {
+    const sortedData = data.sort((a, b) => new Date(a.data_pedido) - new Date(b.data_pedido));
+    setReceitaDiaria({
+      labels: sortedData.map((item) => new Date(item.data_pedido).toLocaleDateString('pt-BR')),
       datasets: [
         {
-          label: 'Vendas por Dia',
+          label: 'Receita Diária',
           backgroundColor: '#46ad5a',
-          data: vendasPorDiaOrdenadas.map(([, valor]) => valor),
+          data: sortedData.map((item) => item.total_receita),
         },
       ],
     });
   };
 
-  const processRankingGraph = () => {
-    if (!rankingData) return null;
-
-    const topProdutos = rankingData.slice(0, 20); // Top 20 produtos
-    return {
+  const processRankingData = (data) => {
+    const topProdutos = data.slice(0, 10); // Top 10 produtos
+    setRankingProdutos({
       labels: topProdutos.map((item) => item.DescricaoResumida || `Produto ${item.idProdutoPai}`),
       datasets: [
         {
@@ -172,10 +137,8 @@ const HomePage = () => {
           data: topProdutos.map((item) => item.total_valor),
         },
       ],
-    };
+    });
   };
-
-  const vendasPorRanking = processRankingGraph();
 
   return (
     <PrimeReactProvider>
@@ -210,24 +173,22 @@ const HomePage = () => {
         })}
       </div>
 
-      
-
       <div>
-        {vendasPorDia && (
+        {receitaDiaria && (
           <div className="chart-container">
-            <h2>Venda x Dia</h2>
-            <Chart type="bar" data={vendasPorDia} options={{ responsive: true, maintainAspectRatio: false }} /> 
+            <h2>Receita Diária</h2>
+            <Chart type="bar" data={receitaDiaria} options={{ responsive: true, maintainAspectRatio: false }} />
           </div>
         )}
-        </div>
+      </div>
 
-        <div>
-        {vendasPorRanking && (
+      <div>
+        {rankingProdutos && (
           <div className="chart-container">
-            <h2>Venda x Produto (Ranking)</h2>
-            <Chart type="bar" data={vendasPorRanking} options={{ responsive: true, maintainAspectRatio: false, indexAxis: 'y' }} />
+            <h2>Ranking de Produtos</h2>
+            <Chart type="bar" data={rankingProdutos} options={{ responsive: true, maintainAspectRatio: false, indexAxis: 'y' }} />
           </div>
-        )}        
+        )}
       </div>
 
       <CardFooter />
