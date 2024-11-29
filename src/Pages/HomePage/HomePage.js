@@ -44,10 +44,17 @@ const HomePage = () => {
   const formatDate = (date) => {
     if (date) {
       const d = new Date(date);
-      return d.toISOString().split('T')[0];
+  
+      // Extrai ano, mês e dia no fuso horário local
+      const year = d.getFullYear();
+      const month = String(d.getMonth() + 1).padStart(2, '0'); // Mês começa de 0
+      const day = String(d.getDate()).padStart(2, '0');
+  
+      return `${year}-${month}-${day}`;
     }
     return null;
   };
+  
 
   const fetchData = async (filterData) => {
     try {
@@ -114,8 +121,17 @@ const HomePage = () => {
 
   const processReceitaDiaria = (data) => {
     const sortedData = data.sort((a, b) => new Date(a.data_pedido) - new Date(b.data_pedido));
+  
     setReceitaDiaria({
-      labels: sortedData.map((item) => new Date(item.data_pedido).toLocaleDateString('pt-BR')),
+      labels: sortedData.map((item) => {
+        const date = new Date(item.data_pedido);
+  
+        // Adiciona o deslocamento do fuso horário para ajustar a data corretamente
+        date.setMinutes(date.getMinutes() + date.getTimezoneOffset());
+  
+        // Formata para o formato desejado
+        return `${String(date.getDate()).padStart(2, '0')}/${String(date.getMonth() + 1).padStart(2, '0')}/${date.getFullYear()}`;
+      }),
       datasets: [
         {
           label: 'Receita Diária',
@@ -125,6 +141,8 @@ const HomePage = () => {
       ],
     });
   };
+  
+  
 
   const processRankingData = (data) => {
     const topProdutos = data.slice(0, 10); // Top 10 produtos
