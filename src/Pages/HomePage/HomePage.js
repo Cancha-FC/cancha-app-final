@@ -1,3 +1,5 @@
+/* eslint-disable */
+
 import React, { useState, useEffect } from 'react';
 import { PrimeReactProvider } from 'primereact/api';
 import { Chart } from 'primereact/chart';
