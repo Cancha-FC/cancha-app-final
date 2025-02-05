@@ -58,14 +58,15 @@ const FilterBar = ({ onFilter }) => {
                 setSelectedLicensees(licenseeIds);
                 setAllSelected(true);
 
-                // Configura a data inicial e final para o dia anterior
-                const yesterday = new Date();
-                yesterday.setDate(yesterday.getDate() - 1);
-                setStartDate(yesterday);
-                setEndDate(yesterday);
+                // Configura a data inicial para o primeiro dia do mês e a data final para hoje
+                const today = new Date();
+                const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+
+                setStartDate(firstDayOfMonth);
+                setEndDate(today);
 
                 // Realiza a busca inicial automaticamente
-                handleSearch(yesterday, yesterday, licenseeIds);
+                handleSearch(firstDayOfMonth, today, licenseeIds);
             } catch (error) {
                 console.error('Erro ao buscar licenciados:', error.message);
             }
