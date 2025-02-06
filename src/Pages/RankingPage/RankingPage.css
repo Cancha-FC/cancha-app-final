@@ -51,3 +51,72 @@
     background-color: #00bcd4;
     color: white;
 }
+
+
+
+@media (max-width: 768px) {
+    /* Garante que nenhum elemento ultrapasse a largura da tela */
+    body,
+    html,
+    .ranking-page {
+      width: 100%;
+      max-width: 100%;
+      overflow-x: hidden; /* Remove rolagem horizontal geral */
+    }
+  
+    /* Ajusta o layout do cabeçalho */
+    .ranking-top {
+      display: flex;
+      flex-direction: column; /* Empilha título e seletor */
+      align-items: flex-start; /* Alinha tudo à esquerda */
+      margin: 10px 5px; /* Adiciona espaçamento */
+    }
+  
+    .ranking-top h1 {
+      font-size: 1.2rem; /* Reduz o tamanho do título */
+      margin-bottom: 10px;
+    }
+  
+    .ranking-top-seletor {
+      width: 100%; /* Ocupa toda a largura da tela */
+      justify-content: flex-start; /* Alinha os botões ao início */
+    }
+  
+    /* Botões de filtro */
+    .FilterBar .button-select {
+      width: 100%; /* Garante que os botões de filtro ocupem toda a largura */
+      margin-bottom: 10px;
+    }
+  
+    /* Campos de filtro e botões */
+    .FilterBar {
+      display: flex;
+      flex-direction: column;
+      gap: 10px; /* Espaçamento entre os itens */
+      padding: 0 10px; /* Espaçamento lateral */
+    }
+  
+    /* Ajusta a tabela para rolagem */
+    .TabRanking {
+      overflow-x: auto; /* Permite rolagem horizontal apenas na tabela */
+      padding: 0 10px; /* Adiciona espaçamento lateral */
+    }
+  
+    .TabRanking .p-datatable {
+      min-width: 600px; /* Define largura mínima da tabela */
+      width: 100%; /* Faz a tabela ocupar toda a largura disponível */
+    }
+  
+    /* Remove margens ou larguras que ultrapassem o container */
+    .p-datatable table {
+      width: 100%; /* Garante que a tabela ocupe toda a largura */
+    }
+  
+    /* Ajusta os botões de busca */
+    .p-button {
+      width: auto; /* Garante que os botões de busca fiquem proporcionais */
+      max-width: 100%;
+    }
+  }
+  
+  

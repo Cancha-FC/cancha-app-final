@@ -73,24 +73,42 @@ label {
 }
 
 .p-calendar {
+    position: relative;
     width: 100%;
 }
 
 .p-calendar .p-inputtext {
-    text-align: left;
-    padding: 0.75rem 3rem 0.75rem 1rem;
-    border-radius: 30px;
-    border: 1px solid #ccc;
-    font-size: 14px;
+    padding-right: 3rem; /* Espaço ajustado para o ícone */
+    text-align: left; /* Texto alinhado à esquerda */
 }
 
 .p-calendar .p-datepicker-trigger {
-    /* position: absolute; */
-    right: 0rem;
-    top: 50%;
+    position: absolute;
+    right: 0rem; /* Aproxima o ícone da borda direita */
+    top: 50%; /* Centraliza verticalmente */
     transform: translateY(-50%);
-    /* color: #00a6ff; */
+    background-color: #00bcd4; /* Cor de fundo do ícone */
+    color: white; /* Cor do ícone */
+    border-radius: 50%; /* Deixa o ícone circular */
+    padding: 0.5rem; /* Tamanho do botão do ícone */
+    cursor: pointer;
+    border: none; /* Remove borda ao redor do ícone */
 }
+
+.p-calendar .p-datepicker-trigger:hover {
+    background-color: #008c9e; /* Cor de fundo ao passar o mouse */
+}
+
+
+.popup-seleciona-data-datas .input-wrapper {
+    position: relative; /* Garante que os elementos dentro do wrapper sejam posicionados corretamente */
+    display: flex;
+    align-items: center;
+    gap: 0.5rem; /* Espaço entre o campo de texto e o ícone */
+}
+
+
+
 
 .confirm-button {
     display: block;
@@ -111,15 +129,115 @@ label {
     margin-bottom: 0.5rem;
 }
 
+.popup-seleciona-licenciados .p-dialog-content {
+    max-height: 80vh; /* Limita a altura máxima do modal */
+    overflow-y: auto; /* Adiciona barra de rolagem para o conteúdo que exceder */
+}
+
+.popup-seleciona-licenciados .p-datatable-wrapper {
+    overflow-x: hidden; /* Remove barra de rolagem horizontal */
+}
+
+.popup-seleciona-licenciados {
+    width: 90%; /* Ajusta a largura do modal no mobile */
+    max-width: 500px; /* Limita a largura máxima no desktop */
+}
+
+.popup-seleciona-licenciados .p-dialog-header {
+    text-align: center; /* Centraliza o título */
+}
+
+.popup-seleciona-licenciados .p-input-icon-left {
+    width: 100%; /* Garante que o campo de pesquisa ocupe a largura completa */
+    margin-bottom: 1rem; /* Espaçamento abaixo do campo de pesquisa */
+}
+
+
+
+
+
 
 @media (max-width: 768px) {
+
     .filter-bar {
         flex-wrap: wrap;
     }
 
-    .calendar-container, .p-dropdown, .p-button {
-        width: 100%; /* Cada item ocupa 100% da largura em telas menores */
-        margin-bottom: 1rem; /* Espaçamento entre os elementos */
+    .popup-seleciona-data {
+        width: 90vw; /* Reduz o tamanho do modal no mobile */
     }
-}
 
+    .popup-seleciona-data-datas {
+        flex-direction: column; /* Alinha os campos um embaixo do outro */
+        gap: 1rem; /* Espaçamento entre os campos */
+    }
+
+    .input-wrapper {
+        width: 100%; /* Cada campo ocupa 100% da largura */
+    }
+
+    .confirm-button {
+        width: 100%; /* Botão ocupa toda a largura */
+        padding: 0.75rem 1rem;
+        font-size: 1rem;
+    }
+
+    .p-calendar {
+        position: relative;
+        width: 100%;
+    }
+
+    .p-calendar .p-inputtext {
+        padding-right: 2.25rem; /* Reduz o espaço para aproximar o ícone */
+        text-align: left; /* Alinha o texto à esquerda */
+        font-size: 1rem; /* Tamanho do texto responsivo */
+    }
+
+    .p-calendar .p-datepicker-trigger {
+        position: absolute;
+        right: 0rem; /* Deixa o ícone bem próximo da borda */
+        top: 50%; /* Centraliza verticalmente */
+        transform: translateY(-50%);
+        background-color: #00bcd4; /* Cor do ícone */
+        color: white; /* Cor da fonte no ícone */
+        border-radius: 50%; /* Ícone circular */
+        padding: 0.4rem; /* Ajuste do tamanho do ícone */
+        cursor: pointer;
+        border: none; /* Remove bordas adicionais */
+    }
+
+    .p-calendar .p-datepicker-trigger:hover {
+        background-color: #008c9e; /* Cor ao passar o mouse */
+    }
+
+    .popup-seleciona-data-datas .input-wrapper {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem; /* Espaço entre os campos */
+        width: 100%;
+    }
+
+    .popup-seleciona-licenciados .p-dialog-content {
+        max-height: 70vh; /* Limita a altura máxima do modal no mobile */
+        overflow-y: auto; /* Adiciona rolagem vertical para conteúdo maior */
+    }
+
+    .popup-seleciona-licenciados {
+        width: 90%; /* Ajusta a largura do modal no mobile */
+        max-width: 400px; /* Define um limite de largura no mobile */
+    }
+
+    .popup-seleciona-licenciados .p-input-icon-left {
+        width: 100%; /* Garante que o campo de pesquisa ocupe toda a largura */
+        margin-bottom: 1rem; /* Espaçamento entre o campo de pesquisa e a tabela */
+    }
+
+    .popup-seleciona-licenciados .p-datatable-wrapper {
+        overflow-x: hidden; /* Remove a rolagem horizontal */
+    }
+
+    .popup-seleciona-licenciados .p-dialog-header {
+        text-align: center; /* Centraliza o título no modal */
+    }
+
+}

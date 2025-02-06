@@ -176,7 +176,7 @@ const FilterBar = ({ onFilter }) => {
                             onChange={(e) => setStartDate(e.value)}
                             placeholder="Selecione a data de início"
                             showIcon
-                            touchUI={false}
+                            touchUI={true}
                             locale="pt-BR"
                             dateFormat="dd/mm/yy"
                         />
@@ -190,7 +190,7 @@ const FilterBar = ({ onFilter }) => {
                             onChange={(e) => setEndDate(e.value)}
                             placeholder="Selecione a data de fim"
                             showIcon
-                            touchUI={false}
+                            touchUI={true}
                             locale="pt-BR"
                             dateFormat="dd/mm/yy"
                         />
@@ -206,10 +206,10 @@ const FilterBar = ({ onFilter }) => {
             </Dialog>
 
             <Dialog
-                header="Seleção de Licenciados"
+                className="popup-seleciona-licenciados"
+                header="Licenciados"
                 visible={modalVisible}
                 onHide={() => setModalVisible(false)}
-                style={{ width: '50vw' }}
             >
                 <span className="p-input-icon-left" style={{ marginBottom: '10px', width: '100%' }}>
                     <i className="pi pi-search" />

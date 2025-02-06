@@ -20,7 +20,7 @@ const RankingPage = () => {
     endDate: null,
     codigoCategoria: '',
   });
-  const [viewType, setViewType] = useState('Licenciado'); // Alterna entre Licenciado e Produto
+  const [viewType, setViewType] = useState('Produto'); // Alterna entre Licenciado e Produto
   const options = ['Licenciado', 'Produto'];
 
   useEffect(() => {
