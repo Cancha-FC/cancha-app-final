@@ -160,6 +160,76 @@ const HomePage = () => {
     });
   };
 
+  // barPercentage: 0.6, // Ajuste a largura da barra (0.5 significa 50% do espaço disponível)
+  // categoryPercentage: 1, // Aumenta ou diminui o espaço total entre as barras
+
+  
+  
+  const chartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    indexAxis: 'y', // Mantém o gráfico horizontal
+    aspectRatio: 0.6,
+    barPercentage: 0.6, // Ajuste a largura da barra (0.5 significa 50% do espaço disponível)
+    categoryPercentage: 1, // Aumenta ou diminui o espaço total entre as barras
+    scales: {
+      y: {
+        ticks: {
+          callback: function (value, index, values) {
+            if (rankingProdutos && rankingProdutos.labels[index]) {
+              let label = rankingProdutos.labels[index];
+              let maxLength = 20; // Defina o tamanho máximo por linha
+  
+              // Divide apenas em espaços, sem quebrar palavras no meio
+              let words = label.split(" ");
+              let lines = [];
+              let currentLine = "";
+  
+              words.forEach(word => {
+                if ((currentLine + " " + word).length > maxLength) {
+                  lines.push(currentLine);
+                  currentLine = word;
+                } else {
+                  currentLine += (currentLine.length ? " " : "") + word;
+                }
+              });
+  
+              if (currentLine.length) {
+                lines.push(currentLine);
+              }
+  
+              return lines; // Retorna um array de strings para que Chart.js entenda como múltiplas linhas
+            }
+            return value; // Retorna o valor padrão se não houver label
+          },
+          font: {
+            size: 12, // Ajusta o tamanho da fonte para melhorar a exibição
+          },
+          autoSkip: false, // Impede a remoção automática de labels
+        },
+      },
+      x: {
+        ticks: {
+          font: {
+            size: 10, // Ajusta a fonte do eixo X
+          },
+        },
+      },
+    },
+    plugins: {
+      legend: {
+        display: true,
+        position: 'top',
+      },
+    },
+  };
+  
+  
+  
+
+  
+  
+
   return (
     <PrimeReactProvider>
       <CardHeader />
@@ -206,7 +276,7 @@ const HomePage = () => {
         {rankingProdutos && (
           <div className="chart-container">
             <h2>Ranking de Produtos</h2>
-            <Chart type="bar" data={rankingProdutos} options={{ responsive: true, maintainAspectRatio: false, indexAxis: 'y' }} />
+            <Chart type="bar" data={rankingProdutos} options={chartOptions} />
           </div>
         )}
       </div>
